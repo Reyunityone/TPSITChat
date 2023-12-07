@@ -210,9 +210,8 @@ public class LoggedIndex extends javax.swing.JFrame {
         jScrollContacts.setVerticalScrollBarPolicy(
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); //set only the vertical scroll
         //Add a contact for each contact saved in the arrayList Contacts
-        for(int i = 0; i<Contacts.size(); i++)
-        {
-            AddContact(Contacts.get(i),LContacts.size());
+        for (String contact : Contacts) {
+            AddContact(contact, LContacts.size());
         }
         
     }//GEN-LAST:event_formWindowOpened
@@ -229,7 +228,7 @@ public class LoggedIndex extends javax.swing.JFrame {
     private void jButtonSendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSendMouseClicked
         // TODO add your handling code here:
         String sMessage = jTextAreaInputChat.getText();
-        if(sMessage.length()!=0)
+        if(!sMessage.isEmpty())
             AddChatText(sMessage, LocalUser);
     }//GEN-LAST:event_jButtonSendMouseClicked
 
@@ -281,7 +280,7 @@ public class LoggedIndex extends javax.swing.JFrame {
         MessTextArea.setBackground(Color.GREEN);
         MessTextArea.setOpaque(true);
         //Choose the position of the added text considering the last message text to chose the right y coodinate
-        //and the sender to chose the right x coordinate
+        //and the sender to choose the right x coordinate
         if(sender.equals(LocalUser))
             MessTextArea.setBounds(LocalSenderStartOffsetMessage, YLastMessage, MaxMessageWidth, (SingleLineMessageHeight*((MessLabelApp.getPreferredSize().width/MaxMessageWidth)+1)));
         else
