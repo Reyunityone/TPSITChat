@@ -1,3 +1,5 @@
+package server;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ import org.w3c.dom.NodeList;;
 
 public class CredentialsHandler {
     
-    private static final String XML_FILE_NAME = "credentials.xml";
+    private static final String XML_FILE_NAME = "src/server/credentials.xml";
     
     public synchronized ArrayList<User> readCredentials() throws Exception{
         ArrayList<User> userList = new ArrayList<User>();
@@ -40,7 +42,6 @@ public class CredentialsHandler {
 
     public synchronized boolean writeCredentials(User user) throws Exception{
 
-        ArrayList<User> userList = new ArrayList<User>();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setIgnoringElementContentWhitespace(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
