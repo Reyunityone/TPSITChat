@@ -8,6 +8,7 @@ public class CredentialsTest {
             for(User u : test){
                 System.out.println("Username: " + u.getUsername() + " Password: " + u.getPassword());
             }
+            handler.writeCredentials(new User("drappeggiojoe","squalo88"));
             } catch (Exception e) {
                 System.err.println(e);
             }
