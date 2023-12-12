@@ -1,4 +1,4 @@
-
+package server;
 public class HandlerTest {
   public static void main(String[] args) {
     DBHandler handler = new DBHandler();

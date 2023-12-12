@@ -1,3 +1,4 @@
+package server;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -29,20 +30,5 @@ public class CredentialsHandler {
         }
 
         return userList;
-    }
-
-    public synchronized boolean writeCredentials(User user){
-
-        ArrayList<User> userList = new ArrayList<User>();
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setIgnoringElementContentWhitespace(true);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new File(XML_FILE_NAME));
-
-        NodeList users = document.getElementsByTagName("user");
-
-        for (int i = 0; i < users.getLength(); i++) {
-            
-        }
     }
 }
