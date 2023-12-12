@@ -9,59 +9,7 @@
     <Messages>
       <Message>
         <Content>Test message</Content>
-        <Message-Time>Mon Dec 11 18:31:45 CET 2023</Message-Time>
-      </Message>
-    </Messages>
-  </Chat>
-  <Chat>
-    <Users>
-      <User>Pippo</User>
-      <User>Merrino</User>
-    </Users>
-    <Group>no</Group>
-    <Messages>
-      <Message>
-        <Content>Test message</Content>
-        <Message-Time>Mon Dec 11 18:32:31 CET 2023</Message-Time>
-      </Message>
-    </Messages>
-  </Chat>
-  <Chat>
-    <Users>
-      <User>Pippo</User>
-      <User>Merrino</User>
-    </Users>
-    <Group>no</Group>
-    <Messages>
-      <Message>
-        <Content>Test message</Content>
-        <Message-Time>Mon Dec 11 18:36:42 CET 2023</Message-Time>
-      </Message>
-    </Messages>
-  </Chat>
-  <Chat>
-    <Users>
-      <User>Pippo</User>
-      <User>Merrino</User>
-    </Users>
-    <Group>no</Group>
-    <Messages>
-      <Message>
-        <Content>Test message</Content>
-        <Message-Time>Mon Dec 11 18:39:30 CET 2023</Message-Time>
-      </Message>
-    </Messages>
-  </Chat>
-  <Chat>
-    <Users>
-      <User>Pippo</User>
-      <User>Merrino</User>
-    </Users>
-    <Group>no</Group>
-    <Messages>
-      <Message>
-        <Content>Test message</Content>
-        <Message-Time>Mon Dec 11 18:48:18 CET 2023</Message-Time>
+        <Message-Time>Tue Dec 12 17:36:17 CET 2023</Message-Time>
       </Message>
     </Messages>
   </Chat>

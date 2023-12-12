@@ -60,7 +60,7 @@ public class DBHandler {
     chat.appendChild(userList);
     chat.appendChild(g);
     chat.appendChild(messages);
-    document.getElementsByTagName("database").item(0).appendChild(chat);    
+    document.getElementsByTagName("database").item(0).appendChild(chat);
     TransformerFactory factory2 = TransformerFactory.newInstance();
     Transformer t = factory2.newTransformer();
     FileOutputStream output = new FileOutputStream(XML_FILE_NAME);
