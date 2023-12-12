@@ -1,3 +1,5 @@
+package server;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -14,7 +16,7 @@ import org.w3c.dom.Element;
 
 
 public class DBHandler {
-  private final String XML_FILE_NAME = "database.xml";
+  private final String XML_FILE_NAME = "src/server/database.xml";
   
   public synchronized String readXml() throws Exception{
     String result = "";
