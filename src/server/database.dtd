@@ -1,0 +1,9 @@
+<!ELEMENT database (Chat*)>
+<!ELEMENT Chat (Users, Group, Messages)>
+<!ELEMENT Messages (Message+)>
+<!ELEMENT Message (Content, Message-Time)>
+<!ELEMENT Content ANY>
+<!ELEMENT Message-Time ANY>
+<!ELEMENT Users (User+)>
+<!ELEMENT User ANY>
+<!ELEMENT Group ANY>
