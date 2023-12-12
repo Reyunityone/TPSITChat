@@ -1,16 +1,1 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<database>
-  <Chat>
-    <Users>
-      <User>Pippo</User>
-      <User>Merrino</User>
-    </Users>
-    <Group>no</Group>
-    <Messages>
-      <Message>
-        <Content>Test message</Content>
-        <Message-Time>Tue Dec 12 17:36:17 CET 2023</Message-Time>
-      </Message>
-    </Messages>
-  </Chat>
-</database>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><database><Chat><Users><User>Pippo</User><User>Merrino</User></Users><Group>no</Group><Messages><Message><Content>Test message</Content><Message-Time>Tue Dec 12 17:36:17 CET 2023</Message-Time></Message></Messages></Chat><Chat><Users><User>Pippo</User><User>Merrino</User></Users><Group>no</Group><Messages><Message><Content>Test message</Content><Message-Time>Tue Dec 12 20:02:56 CET 2023</Message-Time></Message></Messages></Chat></database>

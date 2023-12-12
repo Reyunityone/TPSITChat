@@ -68,8 +68,6 @@ public class DBHandler {
     FileOutputStream output = new FileOutputStream(XML_FILE_NAME);
     DOMSource source = new DOMSource(document);
     StreamResult result = new StreamResult(output);
-    t.setOutputProperty(OutputKeys.INDENT, "yes");
-    t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2"); 
     t.transform(source, result);
     return success;
   }
