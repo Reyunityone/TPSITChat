@@ -3,7 +3,6 @@ package server;
 /**
  * User
  */
-package server;
 public class User {
 
     private String username,password;
