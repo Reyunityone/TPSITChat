@@ -17,6 +17,12 @@ public class Message {
         this.time = new GregorianCalendar();
     }
 
+    public Message(String content, String sender, GregorianCalendar messageTime){
+        this.content = content;
+        this.sender = sender;
+        this.time = messageTime;
+    }
+
     public String getContent() {
         return content;
     }

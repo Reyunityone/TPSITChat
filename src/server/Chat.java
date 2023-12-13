@@ -50,4 +50,9 @@ public class Chat {
     public boolean isGroup() {
         return group;
     }
+
+    @Override
+    public String toString(){
+        return "" + getId() + " " + getMessages() + getUsers(); 
+    }
 }
