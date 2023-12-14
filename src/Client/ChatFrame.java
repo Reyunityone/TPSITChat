@@ -8,15 +8,21 @@ public class ChatFrame extends JFrame{
     private JTextArea textArea1;
     private JButton button1;
     private JButton button2;
+    private JButton logOutButton;
+    private JButton cercaButton;
+    private JTextField textField1;
+    private JButton button3;
+    private JLabel bentornato;
 
     private JFrame frame;
 
-    public ChatFrame(){
+    public ChatFrame(String username){
         frame = new JFrame("Chat");
         frame.setMinimumSize(new Dimension(1024,720));
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.add(panel1);
+        bentornato.setText("Ciao, " + username);
         frame.setVisible(true);
     }
 
@@ -32,7 +38,7 @@ public class ChatFrame extends JFrame{
         } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        new ChatFrame();
+        new ChatFrame(null);
     }
 
     private void createUIComponents() {
