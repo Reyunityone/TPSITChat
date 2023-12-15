@@ -29,7 +29,7 @@ public class TestClient {
             //Send message
             out = new ObjectOutputStream(client.getOutputStream());
             in = new ObjectInputStream(client.getInputStream());
-            out.writeObject(new ChatRequest(ChatRequest.WRITE_MESSAGE, new User("tomamaroia", null), new Message("test", "tomamaroia"), 0));
+            out.writeObject(new ChatRequest(ChatRequest.WRITE_MESSAGE, new User("tomamaroia", null), new Message("test222", "tomamaroia"), 0));
             out.flush();
             try{
                 while(true){

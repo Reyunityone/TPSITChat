@@ -90,6 +90,8 @@ public class ServerChat {
                         }
                     }
                 }
+                c.getMessages().add(request.getMessage());
+                System.out.println(handler.replaceChat(request.getChatId(), c));
             }
         }
 
