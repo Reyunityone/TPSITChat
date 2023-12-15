@@ -1,9 +1,11 @@
 package server;
 
+import java.io.Serializable;
+
 /**
  * User
  */
-public class User {
+public class User implements Serializable{
 
     private String username,password;
 

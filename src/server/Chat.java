@@ -1,11 +1,12 @@
 package server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Chat
  */
-public class Chat {
+public class Chat implements Serializable{
 
     private int id;
     private ArrayList<String> users;

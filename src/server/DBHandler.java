@@ -1,12 +1,14 @@
 package server;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -15,10 +17,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 
 public class DBHandler {
-  private final String XML_FILE_NAME = "src/server/database.xml";
+  private final String XML_FILE_NAME = "server/database.xml";
   
   public synchronized ArrayList<Chat> readChats() throws Exception{
     ArrayList<Chat> result = new ArrayList<>();
@@ -62,6 +65,7 @@ public class DBHandler {
 
   public synchronized boolean writeChat(Chat c) throws Exception{
     boolean success = false;
+    int chatId = c.getId();
     ArrayList<Message> messages = c.getMessages();
     String group = c.isGroup() ? "yes":"no";
     ArrayList<String> users = c.getUsers();
@@ -99,7 +103,9 @@ public class DBHandler {
       user.setTextContent(u);
       userList.appendChild(user);
     }
-    
+    Element id = document.createElement("chatId");
+    id.setTextContent("" + chatId);
+    chat.appendChild(id);
     chat.appendChild(userList);
     chat.appendChild(g);
     chat.appendChild(messagesElement);
@@ -110,6 +116,89 @@ public class DBHandler {
     DOMSource source = new DOMSource(document);
     StreamResult result = new StreamResult(output);
     t.transform(source, result);
+    return success;
+  }
+
+  public synchronized boolean replaceChat(int chatId, Chat c){
+    boolean success = false;
+    System.out.println(c.getMessages().size() + "<<<<< lunghezza chat");
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      Document document = builder.parse(new File(XML_FILE_NAME));
+      NodeList ids = document.getElementsByTagName("chatId");
+      System.out.println("qui");
+      for (int i = 0; i < ids.getLength(); i++) {
+        System.out.println("qui");
+        if(ids.item(i).getTextContent().equals("" + chatId)){
+          Node chat = ids.item(i).getParentNode();
+          System.out.println(chat);
+          NodeList chatChildren = chat.getChildNodes();
+          chatChildren.item(0).setTextContent("" + chatId);
+          NodeList users = chatChildren.item(1).getChildNodes();
+          int j = 0;
+          for(String u : c.getUsers()){
+            users.item(j).setTextContent(u);
+            j++;
+          }
+          chatChildren.item(2).setTextContent(c.isGroup() ? "yes" : "no");
+          NodeList messages = chatChildren.item(3).getChildNodes();
+          j = 0;
+          for(Message message : c.getMessages()){
+            System.out.println("qui dentro" + j + messages.item(j)+ "<<< questo è il node");
+            if(messages.item(j) != null){
+              Node content = messages.item(j).getChildNodes().item(0);
+              Node time = messages.item(j).getChildNodes().item(1);
+              Node sender = messages.item(j).getChildNodes().item(2);
+              content.setTextContent(message.getContent());
+              time.setTextContent("" + message.getTime().get(GregorianCalendar.DATE)
+              + "/" + message.getTime().get(GregorianCalendar.MONTH)
+              + "/" + message.getTime().get(GregorianCalendar.YEAR)
+              + "/" + message.getTime().get(GregorianCalendar.HOUR)
+              + "/" + message.getTime().get(GregorianCalendar.MINUTE));
+              sender.setTextContent(message.getSender());
+              System.out.println(message.getContent());
+            }
+            else{
+              Node content = document.createElement("content");
+              Node messageTime = document.createElement("messageTime");
+              Node sender = document.createElement("sender");
+              content.setTextContent(message.getContent());
+              messageTime.setTextContent("" + message.getTime().get(GregorianCalendar.DATE)
+              + "/" + message.getTime().get(GregorianCalendar.MONTH)
+              + "/" + message.getTime().get(GregorianCalendar.YEAR)
+              + "/" + message.getTime().get(GregorianCalendar.HOUR)
+              + "/" + message.getTime().get(GregorianCalendar.MINUTE));
+              sender.setTextContent(message.getSender());
+              Node newMessage = document.createElement("message");
+              newMessage.appendChild(content);
+              newMessage.appendChild(messageTime);
+              newMessage.appendChild(sender);
+              System.out.println(newMessage);
+              Element messagesElement = (Element) messages;
+              messagesElement.appendChild(newMessage);
+              System.out.println("invece ora qui dentro" + j);
+            }
+            j++;
+          }
+            TransformerFactory factory2 = TransformerFactory.newInstance();
+            Transformer t = factory2.newTransformer();
+            FileOutputStream output = new FileOutputStream(XML_FILE_NAME);
+            DOMSource source = new DOMSource(document);
+            StreamResult result = new StreamResult(output);
+            t.transform(source, result);
+        }
+      }
+
+
+
+    } catch (SAXException | IOException e) {
+      e.printStackTrace();
+    } catch (ParserConfigurationException e) {
+      e.printStackTrace();
+    } catch (TransformerException e) {
+      e.printStackTrace();
+    }
     return success;
   }
 }
