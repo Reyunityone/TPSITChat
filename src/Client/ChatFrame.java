@@ -1,5 +1,7 @@
 package Client;
 
+import server.Chat;
+import server.ChatRequest;
 import server.CredentialsHandler;
 import server.User;
 
@@ -7,7 +9,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
+
+import static java.lang.System.out;
 
 public class ChatFrame extends JFrame{
     private JPanel panel1;
@@ -25,22 +32,26 @@ public class ChatFrame extends JFrame{
     private JFrame frame;
 
     public ChatFrame(String username) {
+
+
+        //#########
         frame = new JFrame("Chat");
         frame.setMinimumSize(new Dimension(1064, 760));
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.add(panel1);
         bentornato.setText("Ciao, " + username);
-        //############################
-        contenitoreContatti.setLayout(new FlowLayout());
+        //###########################
+        FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 0);
+        contenitoreContatti.setLayout(flowLayout);
 
-        // Aggiungi un pannello interno
-        JPanel panel1 = createPanel("Pannello 1");
-        contenitoreContatti.add(panel1);
 
-        // Aggiungi un altro pannello interno
-        JPanel panel2 = createPanel("Pannello 2");
-        contenitoreContatti.add(panel2);
+        String[] labelTexts = {"Pannello 1", "Pannello 2", "Pannello 3"};
+
+        for (String labelText : labelTexts) {
+            JPanel panel = createPanel(labelText);
+            contenitoreContatti.add(panel);
+        }
 
         //###########################
         frame.setVisible(true);
@@ -70,7 +81,8 @@ public class ChatFrame extends JFrame{
                     if (!neg) {
                         JOptionPane.showMessageDialog(null, "Utente non trovato");
                     }else{
-                        //da fare
+                        JPanel panel = createPanel(username);
+                        contenitoreContatti.add(panel);
                     }
                 } catch (Exception error) {
                     error.printStackTrace();
@@ -100,13 +112,14 @@ public class ChatFrame extends JFrame{
         panel.setLayout(new FlowLayout());
 
         JLabel label = new JLabel(labelText);
-        JButton button = new JButton("Un pulsante");
 
         panel.add(label);
-        panel.add(button);
 
-        panel.setPreferredSize(new Dimension(300, 65));
-        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        Color marcello = new Color(205,146,255);
+        Color down = new Color(255,255,255);
+        panel.setBackground(down);
+        panel.setPreferredSize(new Dimension(298, 65));
+        panel.setBorder(BorderFactory.createLineBorder(marcello, 1));
         return panel;
     }
 

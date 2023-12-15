@@ -205,8 +205,8 @@
                     <constraints/>
                     <properties>
                       <background color="-1"/>
-                      <minimumSize width="32" height="-1"/>
-                      <preferredSize width="32" height="-1"/>
+                      <minimumSize width="32" height="10000"/>
+                      <preferredSize width="32" height="10000"/>
                     </properties>
                     <border type="none"/>
                     <children/>
