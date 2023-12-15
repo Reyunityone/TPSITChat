@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Client.login">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Client.SignUp">
   <grid id="27dc6" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="d25cb" binding="panel1" default-binding="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="18bf0" binding="panel1" default-binding="true" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -18,7 +18,7 @@
         </properties>
         <border type="none"/>
         <children>
-          <grid id="e69f1" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="5914c" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="15" left="0" bottom="15" right="0"/>
             <constraints border-constraint="North"/>
             <properties>
@@ -26,29 +26,29 @@
             </properties>
             <border type="none"/>
             <children>
-              <hspacer id="5bc12">
+              <hspacer id="ee6c2">
                 <constraints>
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <hspacer id="4a116">
+              <hspacer id="48d88">
                 <constraints>
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <component id="67ed5" class="javax.swing.JLabel">
+              <component id="86c82" class="javax.swing.JLabel">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <font name="Rubik" size="36"/>
                   <foreground color="-1"/>
-                  <text value="LOGIN"/>
+                  <text value="REGISTRAZIONE"/>
                 </properties>
               </component>
             </children>
           </grid>
-          <grid id="7b782" layout-manager="GridLayoutManager" row-count="7" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="ddb18" layout-manager="GridLayoutManager" row-count="7" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
             <constraints border-constraint="Center"/>
             <properties>
@@ -56,27 +56,27 @@
             </properties>
             <border type="none"/>
             <children>
-              <hspacer id="1f08f">
+              <hspacer id="6f9c5">
                 <constraints>
                   <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <component id="639b" class="javax.swing.JButton" binding="LOGINButton" default-binding="true">
+              <component id="b8f54" class="javax.swing.JButton" binding="REGISTRATIButton" default-binding="true">
                 <constraints>
                   <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <background color="-1"/>
                   <font name="Inter Semi Bold" size="14" style="1"/>
-                  <text value="LOGIN"/>
+                  <text value="REGISTRATI"/>
                 </properties>
               </component>
-              <vspacer id="af363">
+              <vspacer id="c1fef">
                 <constraints>
                   <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
-              <grid id="aaf03" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="44f92" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="5" left="5" bottom="5" right="5"/>
                 <constraints>
                   <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -86,7 +86,7 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="d2b58" class="javax.swing.JTextField" binding="textField1" default-binding="true">
+                  <component id="dcc60" class="javax.swing.JTextField" binding="textField1" default-binding="true">
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="260" height="30"/>
@@ -98,7 +98,7 @@
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="748c" class="javax.swing.JLabel">
+                  <component id="c137a" class="javax.swing.JLabel">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -109,7 +109,7 @@
                   </component>
                 </children>
               </grid>
-              <grid id="9c9dd" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="478ba" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="5" left="5" bottom="5" right="5"/>
                 <constraints>
                   <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -119,7 +119,7 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="57ac7" class="javax.swing.JPasswordField" binding="passwordField1" default-binding="true">
+                  <component id="bc12f" class="javax.swing.JPasswordField" binding="passwordField1" default-binding="true">
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="260" height="30"/>
@@ -130,7 +130,7 @@
                       <foreground color="-11053225"/>
                     </properties>
                   </component>
-                  <component id="d51e9" class="javax.swing.JLabel">
+                  <component id="8bb04" class="javax.swing.JLabel">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -141,26 +141,26 @@
                   </component>
                 </children>
               </grid>
-              <vspacer id="4d735">
+              <vspacer id="f6450">
                 <constraints>
                   <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="2" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
                     <preferred-size width="-1" height="30"/>
                   </grid>
                 </constraints>
               </vspacer>
-              <vspacer id="b6658">
+              <vspacer id="84c7d">
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="2" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
                     <preferred-size width="-1" height="60"/>
                   </grid>
                 </constraints>
               </vspacer>
-              <hspacer id="4a8f0">
+              <hspacer id="82a79">
                 <constraints>
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
-              <grid id="178e3" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="b5a1e" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -170,7 +170,7 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="f4930" class="javax.swing.JButton" binding="REGISTRATIButton" default-binding="true">
+                  <component id="72fc2" class="javax.swing.JButton" binding="RITORNAALLOGINButton" default-binding="true">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -178,10 +178,10 @@
                       <background color="-1"/>
                       <focusable value="true"/>
                       <font name="Inter Semi Bold" size="14" style="1"/>
-                      <text value="REGISTRATI"/>
+                      <text value="RITORNA AL LOGIN"/>
                     </properties>
                   </component>
-                  <component id="a1ae0" class="javax.swing.JLabel" binding="errori">
+                  <component id="19fe5" class="javax.swing.JLabel" binding="errori">
                     <constraints>
                       <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
