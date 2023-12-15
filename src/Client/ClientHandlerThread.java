@@ -39,6 +39,8 @@ public class ClientHandlerThread extends Thread{
                     case ChatRequest.WRITE_MESSAGE:
                         writeMessage(request);
                         break;
+                    case ChatRequest.WRITE_CHATS:
+                        writeChat(request);
                 }
             }
 
@@ -59,6 +61,15 @@ public class ClientHandlerThread extends Thread{
             server.sendMessage(request);
         } catch (Exception e) {
             System.err.println(this + ":" + e);
+        }
+    }
+
+    private void writeChat(ChatRequest request){
+        try{
+            server.writeChat(request);
+        }
+        catch (Exception e){
+            System.err.println(e);
         }
     }
 

@@ -7,10 +7,13 @@ public class ChatRequest implements Serializable{
     public static final int WRITE_MESSAGE = 2;
     public static final int LOAD_MESSAGES = 3;
     public static final int AUTH = 4;
+    public static final int WRITE_CHATS = 5;
     private User user;
     private int chatId;
     private Message message;
     private int code;
+
+    private Chat chat;
 
     public ChatRequest(int code,User u){
         this.user = u;
@@ -21,6 +24,11 @@ public class ChatRequest implements Serializable{
         this.user =u;
         this.message = m;
         this.chatId = chatId;
+        this.code = code;
+    }
+
+    public ChatRequest(int code, Chat c){
+        this.chat = c;
         this.code = code;
     }
 
@@ -43,5 +51,8 @@ public class ChatRequest implements Serializable{
     public int getCode() {
         return code;
     }
-    
+
+    public Chat getChat() {
+        return chat;
+    }
 }

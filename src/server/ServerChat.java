@@ -57,6 +57,9 @@ public class ServerChat {
         this.running = false;
     }
 
+    public synchronized void writeChat(ChatRequest c) throws Exception{
+        handler.writeChat(c.getChat());
+    }
     public ArrayList<Chat> readChats(ChatRequest request) throws Exception{
         return handler.readChats();
     }
