@@ -1,6 +1,7 @@
 package server;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,17 +17,35 @@ public class ServerChat {
     private List<ClientHandlerThread> clients = new ArrayList<>();
     private boolean running = true;
     private DBHandler handler = new DBHandler();
-    private Map<String, Socket> userSocketMap = new HashMap<>();
+    private Map<String, ObjectOutputStream> userSocketMap = new HashMap<>();
     public void startServer() {
         try {
             ServerSocket serverSocket = new ServerSocket(PORT_NUMBER);
             System.out.println("Server listening on port " + PORT_NUMBER);
 
             while (running) {
-                Socket clientSocket = serverSocket.accept();
-                ClientHandlerThread clientThread = new ClientHandlerThread(clientSocket, this);
-                clients.add(clientThread);
-                clientThread.start();
+                try {
+                    Socket clientSocket = serverSocket.accept();
+                    ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+                    ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+                    out.writeObject("Trying to connect...");
+                    ChatRequest request = (ChatRequest) in.readObject();
+                    if(request.getCode() == ChatRequest.AUTH){
+                        if(!userSocketMap.containsKey(request.getUser().getUsername())){
+                            userSocketMap.put(request.getUser().getUsername(), out);
+                            out.writeObject("Authentication succesful\n" + userSocketMap);
+                            ClientHandlerThread clientThread = new ClientHandlerThread(clientSocket, this, request.getUser().getUsername());
+                            clients.add(clientThread);
+                            clientThread.start();
+                        }
+                        else{
+                            out.writeObject("Authentication error");
+                        }
+                    }
+                    
+                } catch (Exception e) {
+                    System.err.println("Server chat: " + e);
+                }
             }
             serverSocket.close();
         } catch (IOException e) {
@@ -52,28 +71,32 @@ public class ServerChat {
 
       return new ArrayList<Message>();
     }
-    public void serverAuth(String username, Socket client){
-        userSocketMap.put(username, client);
-    }
+
     public  void sendMessage(ChatRequest request) throws Exception{
         ArrayList<Chat> chats = handler.readChats();
         for(Chat c: chats){
             if(c.getId() == request.getChatId()){
                 for(String user : c.getUsers()){
                     if(!user.equals(request.getUser().getUsername())){
-                        Socket client = userSocketMap.get(user);
+                        ObjectOutputStream client = userSocketMap.get(user);
                         System.out.println(client + ":" + user);
-                        try {
-                            ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-                            out.writeObject(request.getMessage());
-                        } catch (Exception e) {
-                            throw e;
+                        if(client != null){
+                            try {
+                                client.writeObject(request.getMessage().getContent() + ">" +request.getMessage().getSender());
+                                client.flush();
+                            }catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
             }
         }
 
+    }
+
+    public void closeConnection(String user) {
+        userSocketMap.remove(user);
     }
 
 }
