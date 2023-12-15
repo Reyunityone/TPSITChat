@@ -58,7 +58,7 @@ public class login     extends JFrame{
                         prova = gestioneCred.readCredentials();
                         boolean neg = false;
                         for (int i = 0; i < prova.size(); i++) {
-                            if(prova.get(i).getUsername().equals(username)){
+                            if(prova.get(i).getUsername().equals(username) && prova.get(i).getPassword().equals(password)){
                                 neg = true;
                             }
                         }

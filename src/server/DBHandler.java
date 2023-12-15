@@ -21,7 +21,7 @@ import org.xml.sax.SAXException;
 
 
 public class DBHandler {
-  private final String XML_FILE_NAME = "server/database.xml";
+  private final String XML_FILE_NAME = "src/server/database.xml";
   
   public synchronized ArrayList<Chat> readChats() throws Exception{
     ArrayList<Chat> result = new ArrayList<>();
