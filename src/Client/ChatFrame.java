@@ -3,9 +3,12 @@ package Client;
 import server.*;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -26,6 +29,8 @@ public class ChatFrame extends JFrame{
     private JTextField newChatText;
     private JPanel contenitoreContatti;
     private JScrollPane gianfranco;
+    private JPanel contenitoreMessaggi;
+    private JScrollPane gianpiero;
 
     private String username;
     private JFrame frame;
@@ -67,6 +72,8 @@ public class ChatFrame extends JFrame{
         //###########################
         FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 0);
         contenitoreContatti.setLayout(flowLayout);
+
+        contenitoreMessaggi.setLayout(new BoxLayout(contenitoreMessaggi, BoxLayout.Y_AXIS));
 
         for(Chat c : chats){
             contenitoreContatti.add(createPanel(c));
@@ -184,6 +191,7 @@ public class ChatFrame extends JFrame{
                 ChatRequest request = new ChatRequest(ChatRequest.WRITE_MESSAGE, u, message, currentChat);
                 try {
                     out.writeObject(request);
+                    System.out.println(messageContent);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -239,10 +247,125 @@ public class ChatFrame extends JFrame{
         panel.setPreferredSize(new Dimension(298, 65));
         panel.setBorder(BorderFactory.createLineBorder(marcello, 1));
 
+        // Aggiungi un MouseListener al pannello
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Elimina tutti i componenti dal pannello
+                contenitoreMessaggi.removeAll();
+
+// Aggiorna il layout del pannello
+                contenitoreMessaggi.revalidate();
+
+// Ridisegna il pannello
+                contenitoreMessaggi.repaint();
+                if (c != null) {
+                    System.out.println("Hai cliccato sul pannello con ID " + c.getId());
+
+                    // Rimuovi la variabile locale duplicata "panel"
+                    ArrayList<Message> messaggi = c.getMessages();
+
+                    for (int j = 0; j < messaggi.size(); j++) {
+                        Message prova = messaggi.get(j);
+                        System.out.println(prova.getContent());
+                    }
+                    for (int j = 0; j < messaggi.size(); j++) {
+                        // Rinomina la variabile locale del pannello
+                        JPanel messagePanel = createMessagePanel(messaggi.get(j));
+                        contenitoreMessaggi.add(messagePanel);
+
+                        int spazioTraPannelli = 5;
+                        contenitoreMessaggi.setBorder(BorderFactory.createEmptyBorder(spazioTraPannelli, spazioTraPannelli, spazioTraPannelli, spazioTraPannelli));
+                        // Aggiungi il pannello dei messaggi al contenitore
+                        contenitoreMessaggi.add(messagePanel);
+
+                        // Riorganizza il layout del contenitoreMessaggi
+                        contenitoreMessaggi.revalidate();
+                        contenitoreMessaggi.repaint();
+                        // Ottieni la posizione corrente
+                        Point currentViewPosition = gianpiero.getViewport().getViewPosition();
+
+                        // Sposta di un pixel orizzontalmente e verticalmente
+                        Point newViewPosition = new Point(currentViewPosition.x + 0, currentViewPosition.y + 1);
+
+                        // Imposta la nuova posizione della vista
+                        gianpiero.getViewport().setViewPosition(newViewPosition);
+
+                        // Ottieni la posizione corrente
+                        Point currentViewPosition1 = gianpiero.getViewport().getViewPosition();
+
+                        // Sposta di un pixel orizzontalmente e verticalmente
+                        Point newViewPosition1 = new Point(currentViewPosition1.x + 0, currentViewPosition1.y - 1);
+
+                        // Imposta la nuova posizione della vista
+                        gianpiero.getViewport().setViewPosition(newViewPosition1);
+                    }
+                }
+            }
+        });
         return panel;
+    }
+
+    private JPanel createMessagePanel(Message messaggio) {
+        JPanel messagePanel = new JPanel();
+        messagePanel.setLayout(new BorderLayout());
+
+        Color marcello = new Color(205, 146, 255);
+        messagePanel.setPreferredSize(new Dimension(400, 65));
+        messagePanel.setMaximumSize(new Dimension(400, 65));
+
+
+        int spazioTraPannelli = 5;
+
+// Aggiungi uno spazio tra i pannelli dei messaggi impostando il colore di sfondo del margine
+        messagePanel.setBorder(BorderFactory.createCompoundBorder(
+
+                BorderFactory.createMatteBorder(0, 0, spazioTraPannelli, 0, Color.WHITE),
+                BorderFactory.createLineBorder(marcello, 1)
+        ));
+
+//        int margine = 5;
+//        messagePanel.setBorder(BorderFactory.createCompoundBorder(
+//
+//                new EmptyBorder(margine, margine, margine, margine),
+//                BorderFactory.createLineBorder(marcello, 1)
+//        ));
+
+
+
+        // Aggiungi un componente di testo al pannello dei messaggi
+        JTextArea messageText = new JTextArea(messaggio.getContent());
+        messageText.setWrapStyleWord(true);
+        messageText.setLineWrap(true);
+        messageText.setEditable(false);
+
+        // Allinea a sinistra se il mittente è diverso dall'utente corrente, altrimenti allinea a destra
+        if (messaggio.getSender().equals(username)) {
+            messageText.setAlignmentX(Component.LEFT_ALIGNMENT);
+        } else {
+            messageText.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        }
+
+        // Aggiungi il componente di testo al pannello dei messaggi
+        messagePanel.add(messageText, BorderLayout.CENTER);
+
+        // Allinea a sinistra se il mittente è diverso dall'utente corrente, altrimenti allinea a destra
+        if (messaggio.getSender().equals(username)) {
+            messagePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        } else {
+            messagePanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        }
+
+        // Aggiungi il componente di testo al pannello dei messaggi
+        messagePanel.add(messageText, BorderLayout.CENTER);
+
+
+        return messagePanel;
     }
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
     }
+
+
 }
