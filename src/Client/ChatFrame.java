@@ -6,16 +6,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import static java.lang.System.out;
-
 public class ChatFrame extends JFrame{
     private JPanel panel1;
-    private JTextArea textArea1;
+    private JTextArea messageArea;
     private JTextField textField1;
     private JLabel bentornato;
     private JButton a️Button;
@@ -163,6 +162,21 @@ public class ChatFrame extends JFrame{
             }
         });
 
+        a️Button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int currentChat = 0;
+                String messageContent = messageArea.getText();
+                Message message = new Message(messageContent, username);
+                User u = new User(username, null);
+                ChatRequest request = new ChatRequest(ChatRequest.WRITE_MESSAGE, u, message, currentChat);
+                try {
+                    out.writeObject(request);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {
