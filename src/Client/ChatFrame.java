@@ -37,6 +37,8 @@ public class ChatFrame extends JFrame{
     private ObjectOutputStream out;
     private ObjectInputStream in;
     Socket client;
+
+    private int currentChat = -1;
     public ChatFrame(String username) {
         this.username = username;
         ArrayList<Chat> chats = new ArrayList<Chat>();
@@ -120,28 +122,8 @@ public class ChatFrame extends JFrame{
                         out.writeObject(new ChatRequest(ChatRequest.LOAD_CHATS, new User(username, null)));
                         out.flush();
                         ArrayList<Chat> currentChats = (ArrayList<Chat>) in.readObject();
-                        boolean isPresent = false;
-                        for (Chat c:currentChats){
-                            ArrayList<String> addingUsers = new ArrayList<>();
-                            addingUsers.add(username);
-                            addingUsers.add(addedUser);
-                            addingUsers.sort(new Comparator<String>() {
-                                @Override
-                                public int compare(String o1, String o2) {
-                                    return o1.compareTo(o2);
-                                }
-                            });
-                            ArrayList<String> chatUsers = c.getUsers();
-                            chatUsers.sort(new Comparator<String>() {
-                                @Override
-                                public int compare(String o1, String o2) {
-                                    return o1.compareTo(o2);
-                                }
-                            });
-
-                            isPresent = addingUsers.retainAll(chatUsers);
-                        }
-                        if(isPresent){
+                        boolean isPresent = isPresent(currentChats, addedUser);
+                        if(!isPresent){
                             Chat chat = new Chat(currentChats.size() + 1, users, new ArrayList<Message>(), false);
                             ChatRequest request = new ChatRequest(ChatRequest.WRITE_CHATS, chat);
                             out.writeObject(request);
@@ -179,13 +161,40 @@ public class ChatFrame extends JFrame{
                     error.printStackTrace();
                 }
             }
+
+            private boolean isPresent(ArrayList<Chat> currentChats, String addedUser) {
+                boolean isPresent = false;
+                for (Chat c: currentChats){
+                    ArrayList<String> addingUsers = new ArrayList<>();
+                    addingUsers.add(username);
+                    addingUsers.add(addedUser);
+                    addingUsers.sort(new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            return o1.compareTo(o2);
+                        }
+                    });
+                    ArrayList<String> chatUsers = c.getUsers();
+                    chatUsers.sort(new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            return o1.compareTo(o2);
+                        }
+                    });
+                    System.out.println("is present >>>>" + chatUsers);
+                    System.out.println("is present >>>>" + addingUsers);
+                    isPresent = addingUsers.equals(chatUsers);
+                    if(isPresent) break;
+                }
+                return isPresent;
+            }
         });
 
         a️Button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int currentChat = 0;
                 String messageContent = messageArea.getText();
+                messageArea.setText("");
                 Message message = new Message(messageContent, username);
                 User u = new User(username, null);
                 ChatRequest request = new ChatRequest(ChatRequest.WRITE_MESSAGE, u, message, currentChat);
@@ -260,18 +269,30 @@ public class ChatFrame extends JFrame{
 // Ridisegna il pannello
                 contenitoreMessaggi.repaint();
                 if (c != null) {
-                    System.out.println("Hai cliccato sul pannello con ID " + c.getId());
+                    ChatPanel thispanel = (ChatPanel) e.getSource();
+                    int id = thispanel.getChatId();
+                    currentChat = id;
+                    System.out.println("Hai cliccato sul pannello con ID " + id);
 
-                    // Rimuovi la variabile locale duplicata "panel"
-                    ArrayList<Message> messaggi = c.getMessages();
+                    ChatRequest request = new ChatRequest(ChatRequest.LOAD_MESSAGES, id);
+                    ArrayList<Message> messaggi = null;
+                    try{
+                        out.writeObject(request);
+                        messaggi = (ArrayList<Message>) in.readObject();
+                        System.out.println(messaggi);
+                    }
+                    catch (Exception ex) {
+                        System.err.println(ex);
+                    }
 
-                    for (int j = 0; j < messaggi.size(); j++) {
-                        Message prova = messaggi.get(j);
+
+                    for (Message prova : messaggi) {
                         System.out.println(prova.getContent());
                     }
-                    for (int j = 0; j < messaggi.size(); j++) {
+                    for (Message m : messaggi) {
                         // Rinomina la variabile locale del pannello
-                        JPanel messagePanel = createMessagePanel(messaggi.get(j));
+                        JPanel messagePanel = createMessagePanel(m);
+                        System.out.println(messagePanel);
                         contenitoreMessaggi.add(messagePanel);
 
                         int spazioTraPannelli = 5;
