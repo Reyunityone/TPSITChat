@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class ChatFrame extends JFrame{
     private JPanel panel1;
@@ -26,13 +27,16 @@ public class ChatFrame extends JFrame{
     private JPanel contenitoreContatti;
     private JScrollPane gianfranco;
 
+    private String username;
     private JFrame frame;
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    Socket client;
     public ChatFrame(String username) {
+        this.username = username;
         ArrayList<Chat> chats = new ArrayList<Chat>();
         try{
-            Socket client = new Socket("localhost", 5000);
+            client = new Socket("localhost", 5000);
             out = new ObjectOutputStream(client.getOutputStream());
             in = new ObjectInputStream(client.getInputStream());
             //Auth request
@@ -53,17 +57,6 @@ public class ChatFrame extends JFrame{
         }
 
 
-        ArrayList<String> contatti = new ArrayList<String>();
-        ArrayList<String> real = new ArrayList<String>();
-        for (int i = 0; i < chats.size(); i++) {
-            Chat prova = chats.get(i);
-            contatti = prova.getUsers();
-            real.addAll(contatti);
-        }
-
-        for (int i = 0; i < real.size(); i++) {
-            System.out.println(real.get(i));
-        }
         //#########
         frame = new JFrame("Chat");
         frame.setMinimumSize(new Dimension(1064, 760));
@@ -75,12 +68,9 @@ public class ChatFrame extends JFrame{
         FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 0);
         contenitoreContatti.setLayout(flowLayout);
 
-
-        for (int i = 0; i < real.size(); i++) {
-            JPanel panel = createPanel(real.get(i));
-            contenitoreContatti.add(panel);
+        for(Chat c : chats){
+            contenitoreContatti.add(createPanel(c));
         }
-
         //###########################
         frame.setVisible(true);
         logout.addActionListener(new ActionListener() {
@@ -88,6 +78,13 @@ public class ChatFrame extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 login marco = new login();
                 frame.setVisible(false);
+                try{
+                    client.close();
+                }
+                catch (Exception error){
+                    System.err.println(error);
+                }
+                frame.dispose();
             }
         });
 
@@ -97,7 +94,6 @@ public class ChatFrame extends JFrame{
                 try {
                     ArrayList<User> prova = new ArrayList<User>();
                     String addedUser = "";
-                    int controllore = 0;
                     addedUser = newChatText.getText();
                     CredentialsHandler gestioneCred = new CredentialsHandler();
                     prova = gestioneCred.readCredentials();
@@ -110,25 +106,40 @@ public class ChatFrame extends JFrame{
                     if (!neg) {
                         JOptionPane.showMessageDialog(null, "Utente non trovato");
                     }else if(!addedUser.equals(username)){
-                        for (int i = 0; i < real.size(); i++) {
-                                if(!real.get(i).equalsIgnoreCase(addedUser)){
-                                    controllore++;
-                                }
-                        }
 
-                        if(controllore == real.size()){
-                            real.add(addedUser);
-                            ArrayList<String> users = new ArrayList<>();
-                            users.add(username);
-                            users.add(addedUser);
-                            out.writeObject(new ChatRequest(ChatRequest.LOAD_CHATS, new User(username, null)));
-                            out.flush();
-                            ArrayList<Chat> currentChats = (ArrayList<Chat>) in.readObject();
+                        ArrayList<String> users = new ArrayList<>();
+                        users.add(username);
+                        users.add(addedUser);
+                        out.writeObject(new ChatRequest(ChatRequest.LOAD_CHATS, new User(username, null)));
+                        out.flush();
+                        ArrayList<Chat> currentChats = (ArrayList<Chat>) in.readObject();
+                        boolean isPresent = false;
+                        for (Chat c:currentChats){
+                            ArrayList<String> addingUsers = new ArrayList<>();
+                            addingUsers.add(username);
+                            addingUsers.add(addedUser);
+                            addingUsers.sort(new Comparator<String>() {
+                                @Override
+                                public int compare(String o1, String o2) {
+                                    return o1.compareTo(o2);
+                                }
+                            });
+                            ArrayList<String> chatUsers = c.getUsers();
+                            chatUsers.sort(new Comparator<String>() {
+                                @Override
+                                public int compare(String o1, String o2) {
+                                    return o1.compareTo(o2);
+                                }
+                            });
+
+                            isPresent = addingUsers.retainAll(chatUsers);
+                        }
+                        if(isPresent){
                             Chat chat = new Chat(currentChats.size() + 1, users, new ArrayList<Message>(), false);
                             ChatRequest request = new ChatRequest(ChatRequest.WRITE_CHATS, chat);
                             out.writeObject(request);
                             out.flush();
-                            JPanel panel = createPanel(real.getLast());
+                            JPanel panel = createPanel(chat);
                             contenitoreContatti.add(panel);
 
                             // Ottieni la posizione corrente
@@ -148,8 +159,9 @@ public class ChatFrame extends JFrame{
 
                             // Imposta la nuova posizione della vista
                             gianfranco.getViewport().setViewPosition(newViewPosition1);
-                        }else{
-                            JOptionPane.showMessageDialog(null, "Utente già presente");
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Chat già esistente");
                         }
 
                     }
@@ -194,12 +206,26 @@ public class ChatFrame extends JFrame{
         new ChatFrame(null);
     }
 
-    private JPanel createPanel(String labelText) {
-        JPanel panel = new JPanel();
+    private ChatPanel createPanel(Chat c) {
+        ChatPanel panel = new ChatPanel(c.getId());
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Utilizza BoxLayout con orientamento verticale
 
         Font customFont = new Font("Inter Semi Bold", Font.BOLD, 22);
-        JLabel label = new JLabel(labelText);
+        ArrayList<String> users = c.getUsers();
+        String usersString = "";
+        int i = 0;
+        for(String user: users){
+            if(!user.equals(username)){
+                if(i == 0){
+                    usersString += user;
+                }
+                else {
+                    usersString += ", " + user;
+                }
+                i++;
+            }
+        }
+        JLabel label = new JLabel(usersString);
         label.setFont(customFont);
 
         label.setAlignmentX(Component.CENTER_ALIGNMENT); // Imposta l'allineamento orizzontale della JLabel al centro

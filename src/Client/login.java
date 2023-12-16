@@ -67,7 +67,9 @@ public class login     extends JFrame{
                             errori.setText("Username o password errate!!!");
                         }else{
                             frame.setVisible(false);
+
                             ChatFrame marco = new ChatFrame(username);
+                            frame.dispose();
                         }
                     }
                 }catch (Exception error){}
