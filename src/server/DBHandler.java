@@ -121,15 +121,12 @@ public class DBHandler {
 
   public synchronized boolean replaceChat(int chatId, Chat c){
     boolean success = false;
-    System.out.println(c.getMessages().size() + "<<<<< lunghezza chat");
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       DocumentBuilder builder = factory.newDocumentBuilder();
       Document document = builder.parse(new File(XML_FILE_NAME));
       NodeList ids = document.getElementsByTagName("chatId");
-      System.out.println("qui");
       for (int i = 0; i < ids.getLength(); i++) {
-        System.out.println("qui");
         if(ids.item(i).getTextContent().equals("" + chatId)){
           Node chat = ids.item(i).getParentNode();
           System.out.println(chat);
@@ -145,7 +142,6 @@ public class DBHandler {
           NodeList messages = chatChildren.item(3).getChildNodes();
           j = 0;
           for(Message message : c.getMessages()){
-            System.out.println("qui dentro" + j + messages.item(j)+ "<<< questo è il node");
             if(messages.item(j) != null){
               Node content = messages.item(j).getChildNodes().item(0);
               Node time = messages.item(j).getChildNodes().item(1);
@@ -177,7 +173,6 @@ public class DBHandler {
               System.out.println(newMessage);
               Element messagesElement = (Element) messages;
               messagesElement.appendChild(newMessage);
-              System.out.println("invece ora qui dentro" + j);
             }
             j++;
           }

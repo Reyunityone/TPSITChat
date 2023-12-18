@@ -82,11 +82,14 @@ public class ServerChat {
                 for(String user : c.getUsers()){
                     if(!user.equals(request.getUser().getUsername())){
                         ObjectOutputStream client = userSocketMap.get(user);
-                        System.out.println(client + ":" + user);
+                        System.out.println(client + ":" + user + "<<<<<<<<<<<<<<<<<< molto importante");
                         if(client != null){
                             try {
-                                client.writeObject(request.getMessage().getContent() + ">" +request.getMessage().getSender());
-                                client.flush();
+                                Object[] response = new Object[2];
+                                response[0] = request.getMessage();
+                                response[1] = request.getChatId();
+                                //client.writeObject(response);
+                                //client.flush();
                             }catch (Exception e) {
                                 e.printStackTrace();
                             }

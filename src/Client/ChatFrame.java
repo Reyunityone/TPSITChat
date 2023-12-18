@@ -9,12 +9,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.concurrent.Semaphore;
 
 public class ChatFrame extends JFrame{
     private JPanel panel1;
@@ -32,13 +36,16 @@ public class ChatFrame extends JFrame{
     private JPanel contenitoreMessaggi;
     private JScrollPane gianpiero;
 
-    private String username;
-    private JFrame frame;
+    private final Semaphore inSemaforo = new Semaphore(1);
+
+    private final String username;
+    private final JFrame frame;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     Socket client;
+    private ArrayList<Message> messaggi = new ArrayList<>();
 
-    private int currentChat = -1;
+    private ChatPanel currentChat = null;
     public ChatFrame(String username) {
         this.username = username;
         ArrayList<Chat> chats = new ArrayList<Chat>();
@@ -48,16 +55,21 @@ public class ChatFrame extends JFrame{
             in = new ObjectInputStream(client.getInputStream());
             //Auth request
             System.out.println(in.readObject());
+            inSemaforo.acquire();
             out.writeObject(new ChatRequest(ChatRequest.AUTH, new User(username, null)));
             out.flush();
             //Response
+            
             String response = (String)in.readObject();
             if(response.equalsIgnoreCase("authentication error")) JOptionPane.showMessageDialog(null, response);
+            inSemaforo.release();
             out = new ObjectOutputStream(client.getOutputStream());
             in = new ObjectInputStream(client.getInputStream());
+            inSemaforo.acquire();
             out.writeObject(new ChatRequest(ChatRequest.LOAD_CHATS, new User(username, null)));
             out.flush();
             chats = (ArrayList<Chat>) in.readObject();
+            inSemaforo.release();
             System.out.println(chats);
         }
         catch(Exception e){
@@ -120,9 +132,11 @@ public class ChatFrame extends JFrame{
                         ArrayList<String> users = new ArrayList<>();
                         users.add(username);
                         users.add(addedUser);
+                        inSemaforo.acquire();
                         out.writeObject(new ChatRequest(ChatRequest.LOAD_CHATS, new User(username, null)));
                         out.flush();
                         ArrayList<Chat> currentChats = (ArrayList<Chat>) in.readObject();
+                        inSemaforo.release();
                         boolean isPresent = isPresent(currentChats, addedUser);
                         if(!isPresent){
                             Chat chat = new Chat(currentChats.size() + 1, users, new ArrayList<Message>(), false);
@@ -136,7 +150,7 @@ public class ChatFrame extends JFrame{
                             Point currentViewPosition = gianfranco.getViewport().getViewPosition();
 
                             // Sposta di un pixel orizzontalmente e verticalmente
-                            Point newViewPosition = new Point(currentViewPosition.x + 0, currentViewPosition.y + 1);
+                            Point newViewPosition = new Point(currentViewPosition.x, currentViewPosition.y + 1);
 
                             // Imposta la nuova posizione della vista
                             gianfranco.getViewport().setViewPosition(newViewPosition);
@@ -145,7 +159,7 @@ public class ChatFrame extends JFrame{
                             Point currentViewPosition1 = gianfranco.getViewport().getViewPosition();
 
                             // Sposta di un pixel orizzontalmente e verticalmente
-                            Point newViewPosition1 = new Point(currentViewPosition1.x + 0, currentViewPosition1.y - 1);
+                            Point newViewPosition1 = new Point(currentViewPosition1.x, currentViewPosition1.y - 1);
 
                             // Imposta la nuova posizione della vista
                             gianfranco.getViewport().setViewPosition(newViewPosition1);
@@ -198,7 +212,7 @@ public class ChatFrame extends JFrame{
                 messageArea.setText("");
                 Message message = new Message(messageContent, username);
                 User u = new User(username, null);
-                ChatRequest request = new ChatRequest(ChatRequest.WRITE_MESSAGE, u, message, currentChat);
+                ChatRequest request = new ChatRequest(ChatRequest.WRITE_MESSAGE, u, message, currentChat.getChatId());
                 try {
                     out.writeObject(request);
                     System.out.println(messageContent);
@@ -207,18 +221,66 @@ public class ChatFrame extends JFrame{
                 }
             }
         });
+        Thread reload = new Thread(() ->{
+            try{
+                while(true){
+                    Thread.sleep(2000);
+                    if(currentChat != null){
+                        contenitoreMessaggi.removeAll();
+                        ChatRequest request = new ChatRequest(ChatRequest.LOAD_MESSAGES, currentChat.getChatId());
+                        inSemaforo.acquire();
+                        out.writeObject(request);
+                        ArrayList<Message> newMessaggi = (ArrayList<Message>) in.readObject();
+                        inSemaforo.release();
+                        if(!newMessaggi.equals(messaggi)){
+                            for (Message m : newMessaggi) {
+                                // Rinomina la variabile locale del pannello
+                                JPanel messagePanel = createMessagePanel(m);
+                                System.out.println(messagePanel);
+                                contenitoreMessaggi.add(messagePanel);
+
+                                int spazioTraPannelli = 5;
+                                contenitoreMessaggi.setBorder(BorderFactory.createEmptyBorder(spazioTraPannelli, spazioTraPannelli, spazioTraPannelli, spazioTraPannelli));
+                                // Aggiungi il pannello dei messaggi al contenitore
+                                contenitoreMessaggi.add(messagePanel);
+
+                                // Riorganizza il layout del contenitoreMessaggi
+                                contenitoreMessaggi.revalidate();
+                                contenitoreMessaggi.repaint();
+                                // Ottieni la posizione corrente
+                                Point currentViewPosition = gianpiero.getViewport().getViewPosition();
+
+                                // Sposta di un pixel orizzontalmente e verticalmente
+                                Point newViewPosition = new Point(currentViewPosition.x, currentViewPosition.y + 1);
+
+                                // Imposta la nuova posizione della vista
+                                gianpiero.getViewport().setViewPosition(newViewPosition);
+
+                                // Ottieni la posizione corrente
+                                Point currentViewPosition1 = gianpiero.getViewport().getViewPosition();
+
+                                // Sposta di un pixel orizzontalmente e verticalmente
+                                Point newViewPosition1 = new Point(currentViewPosition1.x, currentViewPosition1.y - 1);
+
+                                // Imposta la nuova posizione della vista
+                                gianpiero.getViewport().setViewPosition(newViewPosition1);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex){
+                System.err.println(ex);
+            }
+        });
+        reload.start();
     }
 
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        }catch (ClassNotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InstantiationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (UnsupportedLookAndFeelException e) {
+        }catch (ClassNotFoundException | UnsupportedLookAndFeelException | InstantiationException |
+                IllegalAccessException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         new ChatFrame(null);
@@ -228,25 +290,7 @@ public class ChatFrame extends JFrame{
         ChatPanel panel = new ChatPanel(c.getId());
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Utilizza BoxLayout con orientamento verticale
 
-        Font customFont = new Font("Inter Semi Bold", Font.BOLD, 22);
-        ArrayList<String> users = c.getUsers();
-        String usersString = "";
-        int i = 0;
-        for(String user: users){
-            if(!user.equals(username)){
-                if(i == 0){
-                    usersString += user;
-                }
-                else {
-                    usersString += ", " + user;
-                }
-                i++;
-            }
-        }
-        JLabel label = new JLabel(usersString);
-        label.setFont(customFont);
-
-        label.setAlignmentX(Component.CENTER_ALIGNMENT); // Imposta l'allineamento orizzontale della JLabel al centro
+        JLabel label = getjLabel(c);
         panel.add(Box.createVerticalGlue()); // Aggiunge uno spaziatore verticale per centrare verticalmente
         panel.add(label);
         panel.add(Box.createVerticalGlue()); // Aggiunge un altro spaziatore verticale per centrare verticalmente
@@ -272,14 +316,16 @@ public class ChatFrame extends JFrame{
                 if (c != null) {
                     ChatPanel thispanel = (ChatPanel) e.getSource();
                     int id = thispanel.getChatId();
-                    currentChat = id;
+                    currentChat = thispanel;
                     System.out.println("Hai cliccato sul pannello con ID " + id);
 
                     ChatRequest request = new ChatRequest(ChatRequest.LOAD_MESSAGES, id);
-                    ArrayList<Message> messaggi = null;
+                    messaggi = new ArrayList<>();
                     try{
+                        inSemaforo.acquire();
                         out.writeObject(request);
                         messaggi = (ArrayList<Message>) in.readObject();
+                        inSemaforo.release();
                         System.out.println(messaggi);
                     }
                     catch (Exception ex) {
@@ -328,6 +374,29 @@ public class ChatFrame extends JFrame{
         return panel;
     }
 
+    private JLabel getjLabel(Chat c) {
+        Font customFont = new Font("Inter Semi Bold", Font.BOLD, 22);
+        ArrayList<String> users = c.getUsers();
+        String usersString = "";
+        int i = 0;
+        for(String user: users){
+            if(!user.equals(username)){
+                if(i == 0){
+                    usersString += user;
+                }
+                else {
+                    usersString += ", " + user;
+                }
+                i++;
+            }
+        }
+        JLabel label = new JLabel(usersString);
+        label.setFont(customFont);
+
+        label.setAlignmentX(Component.CENTER_ALIGNMENT); // Imposta l'allineamento orizzontale della JLabel al centro
+        return label;
+    }
+
     private JPanel createMessagePanel(Message messaggio) {
         JPanel messagePanel = new JPanel();
         messagePanel.setLayout(new BorderLayout());
@@ -335,6 +404,7 @@ public class ChatFrame extends JFrame{
         Color marcello = new Color(205, 146, 255);
         messagePanel.setPreferredSize(new Dimension(400, 65));
         messagePanel.setMaximumSize(new Dimension(400, 65));
+        messagePanel.setMinimumSize(new Dimension(400, 65));
 
 
         int spazioTraPannelli = 5;
@@ -345,15 +415,6 @@ public class ChatFrame extends JFrame{
                 BorderFactory.createMatteBorder(0, 0, spazioTraPannelli, 0, Color.WHITE),
                 BorderFactory.createLineBorder(marcello, 1)
         ));
-
-//        int margine = 5;
-//        messagePanel.setBorder(BorderFactory.createCompoundBorder(
-//
-//                new EmptyBorder(margine, margine, margine, margine),
-//                BorderFactory.createLineBorder(marcello, 1)
-//        ));
-
-
 
         // Aggiungi un componente di testo al pannello dei messaggi
         JTextArea messageText = new JTextArea(messaggio.getContent());
