@@ -240,7 +240,6 @@ public class ChatFrame extends JFrame{
                             out.writeObject(request);
                             messaggi = (ArrayList<Message>) in.readObject();
                             inSemaforo.release();
-                            System.out.println(messaggi);
                         }
                         catch (Exception ex) {
                             System.err.println(ex);
@@ -253,7 +252,6 @@ public class ChatFrame extends JFrame{
                         for (Message m : messaggi) {
                             // Rinomina la variabile locale del pannello
                             JPanel messagePanel = createMessagePanel(m);
-                            System.out.println(messagePanel);
                             contenitoreMessaggi.add(messagePanel);
 
                             int spazioTraPannelli = 5;
