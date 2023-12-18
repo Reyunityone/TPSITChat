@@ -414,15 +414,6 @@ public class ChatFrame extends JFrame{
                 BorderFactory.createLineBorder(marcello, 1)
         ));
 
-//        int margine = 5;
-//        messagePanel.setBorder(BorderFactory.createCompoundBorder(
-//
-//                new EmptyBorder(margine, margine, margine, margine),
-//                BorderFactory.createLineBorder(marcello, 1)
-//        ));
-
-
-
         // Aggiungi un componente di testo al pannello dei messaggi
         JTextArea messageText = new JTextArea(messaggio.getContent());
         messageText.setWrapStyleWord(true);
