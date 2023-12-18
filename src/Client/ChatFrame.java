@@ -59,7 +59,9 @@ public class ChatFrame extends JFrame{
             out.writeObject(new ChatRequest(ChatRequest.AUTH, new User(username, null)));
             out.flush();
             //Response
-            System.out.println(in.readObject());
+            
+            String response = (String)in.readObject();
+            if(response.equalsIgnoreCase("authentication error")) JOptionPane.showMessageDialog(null, response);
             inSemaforo.release();
             out = new ObjectOutputStream(client.getOutputStream());
             in = new ObjectInputStream(client.getInputStream());
@@ -71,7 +73,7 @@ public class ChatFrame extends JFrame{
             System.out.println(chats);
         }
         catch(Exception e){
-            System.err.println(e);
+            System.err.println(e + "mortubio");
         }
 
 
