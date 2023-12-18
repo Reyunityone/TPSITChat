@@ -8,6 +8,8 @@ public class ChatRequest implements Serializable{
     public static final int LOAD_MESSAGES = 3;
     public static final int AUTH = 4;
     public static final int WRITE_CHATS = 5;
+
+    public static final int GET_SIZE = 6;
     private User user;
     private int chatId;
     private Message message;

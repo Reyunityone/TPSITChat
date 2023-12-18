@@ -137,7 +137,12 @@ public class ChatFrame extends JFrame{
                         inSemaforo.release();
                         boolean isPresent = isPresent(currentChats, users);
                         if(!isPresent){
-                            Chat chat = new Chat(currentChats.size(), users, new ArrayList<Message>(), false);
+                            inSemaforo.acquire();
+                            out.writeObject(new ChatRequest(ChatRequest.GET_SIZE, (User) null));
+                            out.flush();
+                            inSemaforo.release();
+                            int newId = (int) in.readObject();
+                            Chat chat = new Chat(newId, users, new ArrayList<Message>(), false);
                             chat.getMessages().add(new Message(username + " ha creato la chat.", username));
                             for(String s: chat.getUsers()){
                                 if(!s.equalsIgnoreCase(username)) chat.getMessages().add(new Message(s + " ora partecipa alla chat.", s));
@@ -328,7 +333,12 @@ public class ChatFrame extends JFrame{
                         confronto.add(username);
                         boolean presente = this.isPresent(currentChats, confronto);
                         if(!presente){
-                            Chat chat = new Chat(currentChats.size(), confronto, new ArrayList<Message>(), false);
+                            inSemaforo.acquire();
+                            out.writeObject(new ChatRequest(ChatRequest.GET_SIZE, (User) null));
+                            out.flush();
+                            inSemaforo.release();
+                            int newId = (int) in.readObject();
+                            Chat chat = new Chat(newId, confronto, new ArrayList<Message>(), false);
                             chat.getMessages().add(new Message(username + " ha creato la chat.", username));
                             for(String s: chat.getUsers()){
                                 if(!s.equalsIgnoreCase(username)) chat.getMessages().add(new Message(s + " ora partecipa alla chat.", s));

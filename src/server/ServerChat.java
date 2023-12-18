@@ -110,4 +110,8 @@ public class ServerChat {
         userSocketMap.remove(user);
     }
 
+    public synchronized int getChatsLength() throws Exception {
+        return handler.readChats().size();
+    }
+
 }
