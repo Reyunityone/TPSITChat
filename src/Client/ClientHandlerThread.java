@@ -41,6 +41,10 @@ public class ClientHandlerThread extends Thread{
                         break;
                     case ChatRequest.WRITE_CHATS:
                         writeChat(request);
+                        break;
+                    case ChatRequest.GET_SIZE:
+                        getChatsLength(output);
+                        break;
                 }
             }
 
@@ -92,6 +96,15 @@ public class ClientHandlerThread extends Thread{
             output.writeObject(chats);
         } catch (Exception e) {
             System.err.println(e);
+        }
+    }
+
+    private void getChatsLength(ObjectOutputStream out){
+        try{
+            out.writeObject(server.getChatsLength());
+        }
+        catch(Exception ex){
+            System.err.println(ex);
         }
     }
 }

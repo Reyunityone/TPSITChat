@@ -49,20 +49,29 @@ public SignUp() {
                 String password = "";
                 username = textField1.getText();
                 password = passwordField1.getText();
+
                 if (username.isBlank() && password.isBlank()){
+                    errori.setForeground(Color.red);
                     errori.setVisible(true);
                     errori.setText("Inserisci il nome utente ed una password!!!");
                 }else if(username.isBlank()){
+                    errori.setForeground(Color.red);
                     errori.setVisible(true);
                     errori.setText("Inserisci il nome utente!!!");
                 }
                 else if(password.isBlank()){
+                    errori.setForeground(Color.red);
                     errori.setVisible(true);
                     errori.setText("Inserisci una password!!!");
-                }else{
+                } else if (username.length() < 5) {
+                    errori.setForeground(Color.red);
+                    errori.setVisible(true);
+                    errori.setText("Inserisci un username di almeno 5 caratteri!!!");
+                } else{
                     User user = new User(username, password);
                     CredentialsHandler gestioneCred = new CredentialsHandler();
                     if(!gestioneCred.writeCredentials(user)){
+                        errori.setForeground(Color.red);
                         errori.setVisible(true);
                         errori.setText("Utente già registrato!!!");
                     }else{
