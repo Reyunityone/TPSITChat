@@ -127,6 +127,8 @@ public class DBHandler {
       Document document = builder.parse(new File(XML_FILE_NAME));
       NodeList ids = document.getElementsByTagName("chatId");
       for (int i = 0; i < ids.getLength(); i++) {
+        System.out.println(ids.item(i).getTextContent());
+        System.out.println(""+chatId);
         if(ids.item(i).getTextContent().equals("" + chatId)){
           Node chat = ids.item(i).getParentNode();
           System.out.println(chat);
@@ -141,7 +143,9 @@ public class DBHandler {
           chatChildren.item(2).setTextContent(c.isGroup() ? "yes" : "no");
           NodeList messages = chatChildren.item(3).getChildNodes();
           j = 0;
-          for(Message message : c.getMessages()){
+          do{
+            Message message = c.getMessages().get(j);
+            System.out.println(messages.item(j));
             if(messages.item(j) != null){
               Node content = messages.item(j).getChildNodes().item(0);
               Node time = messages.item(j).getChildNodes().item(1);
@@ -175,13 +179,14 @@ public class DBHandler {
               messagesElement.appendChild(newMessage);
             }
             j++;
-          }
+          }while (j < c.getMessages().size());
             TransformerFactory factory2 = TransformerFactory.newInstance();
             Transformer t = factory2.newTransformer();
             FileOutputStream output = new FileOutputStream(XML_FILE_NAME);
             DOMSource source = new DOMSource(document);
             StreamResult result = new StreamResult(output);
             t.transform(source, result);
+            success = true;
         }
       }
 

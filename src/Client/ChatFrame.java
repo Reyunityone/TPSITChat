@@ -3,31 +3,28 @@ package Client;
 import server.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
+import java.util.StringTokenizer;
 import java.util.concurrent.Semaphore;
 
 public class ChatFrame extends JFrame{
+    private ChatPanel currentSelectedPanel;
     private JPanel panel1;
     private JTextArea messageArea;
-    private JTextField textField1;
+    private JTextField textGroup;
     private JLabel bentornato;
-    private JButton a️Button;
+    private JButton inviaButton;
     private JButton logout;
-    private JButton cerchito;
     private JButton cercatopo;
     private JButton newChat;
     private JTextField newChatText;
@@ -73,7 +70,7 @@ public class ChatFrame extends JFrame{
             System.out.println(chats);
         }
         catch(Exception e){
-            System.err.println(e + "mortubio");
+            System.err.println(e);
         }
 
 
@@ -117,6 +114,7 @@ public class ChatFrame extends JFrame{
                     ArrayList<User> prova = new ArrayList<User>();
                     String addedUser = "";
                     addedUser = newChatText.getText();
+                    newChatText.setText("");
                     CredentialsHandler gestioneCred = new CredentialsHandler();
                     prova = gestioneCred.readCredentials();
                     boolean neg = false;
@@ -137,9 +135,9 @@ public class ChatFrame extends JFrame{
                         out.flush();
                         ArrayList<Chat> currentChats = (ArrayList<Chat>) in.readObject();
                         inSemaforo.release();
-                        boolean isPresent = isPresent(currentChats, addedUser);
+                        boolean isPresent = isPresent(currentChats, users);
                         if(!isPresent){
-                            Chat chat = new Chat(currentChats.size() + 1, users, new ArrayList<Message>(), false);
+                            Chat chat = new Chat(currentChats.size(), users, new ArrayList<Message>(), false);
                             ChatRequest request = new ChatRequest(ChatRequest.WRITE_CHATS, chat);
                             out.writeObject(request);
                             out.flush();
@@ -177,12 +175,10 @@ public class ChatFrame extends JFrame{
                 }
             }
 
-            private boolean isPresent(ArrayList<Chat> currentChats, String addedUser) {
+            private boolean isPresent(ArrayList<Chat> currentChats, ArrayList<String> addingUsers) {
                 boolean isPresent = false;
                 for (Chat c: currentChats){
-                    ArrayList<String> addingUsers = new ArrayList<>();
-                    addingUsers.add(username);
-                    addingUsers.add(addedUser);
+
                     addingUsers.sort(new Comparator<String>() {
                         @Override
                         public int compare(String o1, String o2) {
@@ -205,7 +201,7 @@ public class ChatFrame extends JFrame{
             }
         });
 
-        a️Button.addActionListener(new ActionListener() {
+        inviaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String messageContent = messageArea.getText();
@@ -227,45 +223,56 @@ public class ChatFrame extends JFrame{
                     Thread.sleep(2000);
                     if(currentChat != null){
                         contenitoreMessaggi.removeAll();
+
                         ChatRequest request = new ChatRequest(ChatRequest.LOAD_MESSAGES, currentChat.getChatId());
-                        inSemaforo.acquire();
-                        out.writeObject(request);
-                        ArrayList<Message> newMessaggi = (ArrayList<Message>) in.readObject();
-                        inSemaforo.release();
-                        if(!newMessaggi.equals(messaggi)){
-                            for (Message m : newMessaggi) {
-                                // Rinomina la variabile locale del pannello
-                                JPanel messagePanel = createMessagePanel(m);
-                                System.out.println(messagePanel);
-                                contenitoreMessaggi.add(messagePanel);
-
-                                int spazioTraPannelli = 5;
-                                contenitoreMessaggi.setBorder(BorderFactory.createEmptyBorder(spazioTraPannelli, spazioTraPannelli, spazioTraPannelli, spazioTraPannelli));
-                                // Aggiungi il pannello dei messaggi al contenitore
-                                contenitoreMessaggi.add(messagePanel);
-
-                                // Riorganizza il layout del contenitoreMessaggi
-                                contenitoreMessaggi.revalidate();
-                                contenitoreMessaggi.repaint();
-                                // Ottieni la posizione corrente
-                                Point currentViewPosition = gianpiero.getViewport().getViewPosition();
-
-                                // Sposta di un pixel orizzontalmente e verticalmente
-                                Point newViewPosition = new Point(currentViewPosition.x, currentViewPosition.y + 1);
-
-                                // Imposta la nuova posizione della vista
-                                gianpiero.getViewport().setViewPosition(newViewPosition);
-
-                                // Ottieni la posizione corrente
-                                Point currentViewPosition1 = gianpiero.getViewport().getViewPosition();
-
-                                // Sposta di un pixel orizzontalmente e verticalmente
-                                Point newViewPosition1 = new Point(currentViewPosition1.x, currentViewPosition1.y - 1);
-
-                                // Imposta la nuova posizione della vista
-                                gianpiero.getViewport().setViewPosition(newViewPosition1);
-                            }
+                        messaggi = new ArrayList<>();
+                        try{
+                            inSemaforo.acquire();
+                            out.writeObject(request);
+                            messaggi = (ArrayList<Message>) in.readObject();
+                            inSemaforo.release();
+                            System.out.println(messaggi);
                         }
+                        catch (Exception ex) {
+                            System.err.println(ex);
+                        }
+
+
+                        for (Message prova : messaggi) {
+                            System.out.println(prova.getContent());
+                        }
+                        for (Message m : messaggi) {
+                            // Rinomina la variabile locale del pannello
+                            JPanel messagePanel = createMessagePanel(m);
+                            System.out.println(messagePanel);
+                            contenitoreMessaggi.add(messagePanel);
+
+                            int spazioTraPannelli = 5;
+                            contenitoreMessaggi.setBorder(BorderFactory.createEmptyBorder(spazioTraPannelli, spazioTraPannelli, spazioTraPannelli, spazioTraPannelli));
+                            // Aggiungi il pannello dei messaggi al contenitore
+                            contenitoreMessaggi.add(messagePanel);
+
+                            // Riorganizza il layout del contenitoreMessaggi
+                            contenitoreMessaggi.revalidate();
+                            contenitoreMessaggi.repaint();
+                            // Ottieni la posizione corrente
+                            Point currentViewPosition = gianpiero.getViewport().getViewPosition();
+
+                            // Sposta di un pixel orizzontalmente e verticalmente
+                            Point newViewPosition = new Point(currentViewPosition.x + 0, currentViewPosition.y + 1);
+
+                            // Imposta la nuova posizione della vista
+                            gianpiero.getViewport().setViewPosition(newViewPosition);
+
+                            // Ottieni la posizione corrente
+                            Point currentViewPosition1 = gianpiero.getViewport().getViewPosition();
+
+                            // Sposta di un pixel orizzontalmente e verticalmente
+                            Point newViewPosition1 = new Point(currentViewPosition1.x + 0, currentViewPosition1.y - 1);
+
+                            // Imposta la nuova posizione della vista
+                            gianpiero.getViewport().setViewPosition(newViewPosition1);
+                            }
                     }
                 }
             }
@@ -274,6 +281,107 @@ public class ChatFrame extends JFrame{
             }
         });
         reload.start();
+        cercatopo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    ArrayList<User> prova = new ArrayList<User>();
+                    String addedUser = "";
+                    addedUser = textGroup.getText();
+                    textGroup.setText("");
+                    StringTokenizer tokenizer = new StringTokenizer(addedUser, ",");
+                    ArrayList<String> confronto = new ArrayList<String>();
+                    while(tokenizer.hasMoreTokens()){
+                        String token = tokenizer.nextToken();
+                        if(token.equalsIgnoreCase(username)){
+                            JOptionPane.showMessageDialog(null, "Non includere te stesso");
+                            return;
+                        }
+                        confronto.add(token);
+                    }
+
+                    CredentialsHandler gestioneCred = new CredentialsHandler();
+                    prova = gestioneCred.readCredentials();
+
+
+                    for (String s : confronto){
+                        boolean found = false;
+                        for (User u : prova){
+                            if(u.getUsername().equalsIgnoreCase(s)){
+                                found = true;
+                            }
+                        }
+                        if(!found){
+                            JOptionPane.showMessageDialog(null, "Utente non trovato: " + s);
+                            return;
+                        }
+                    }
+                        inSemaforo.acquire();
+                        out.writeObject(new ChatRequest(ChatRequest.LOAD_CHATS, new User(username, null)));
+                        out.flush();
+                        ArrayList<Chat> currentChats = (ArrayList<Chat>) in.readObject();
+                        inSemaforo.release();
+                        confronto.add(username);
+                        boolean presente = this.isPresent(currentChats, confronto);
+                        if(!presente){
+                            Chat chat = new Chat(currentChats.size(), confronto, new ArrayList<Message>(), false);
+                            ChatRequest request = new ChatRequest(ChatRequest.WRITE_CHATS, chat);
+                            out.writeObject(request);
+                            out.flush();
+                            JPanel panel = createPanel(chat);
+                            contenitoreContatti.add(panel);
+
+                            // Ottieni la posizione corrente
+                            Point currentViewPosition = gianfranco.getViewport().getViewPosition();
+
+                            // Sposta di un pixel orizzontalmente e verticalmente
+                            Point newViewPosition = new Point(currentViewPosition.x, currentViewPosition.y + 1);
+
+                            // Imposta la nuova posizione della vista
+                            gianfranco.getViewport().setViewPosition(newViewPosition);
+
+                            // Ottieni la posizione corrente
+                            Point currentViewPosition1 = gianfranco.getViewport().getViewPosition();
+
+                            // Sposta di un pixel orizzontalmente e verticalmente
+                            Point newViewPosition1 = new Point(currentViewPosition1.x, currentViewPosition1.y - 1);
+
+                            // Imposta la nuova posizione della vista
+                            gianfranco.getViewport().setViewPosition(newViewPosition1);
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Chat già esistente");
+                        }
+                } catch (Exception error) {
+                    error.printStackTrace();
+                }
+            }
+            private boolean isPresent(ArrayList<Chat> currentChats, ArrayList<String> addingUsers) {
+                boolean isPresent = false;
+                for (Chat c: currentChats){
+
+                    addingUsers.sort(new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            return o1.compareTo(o2);
+                        }
+                    });
+                    ArrayList<String> chatUsers = c.getUsers();
+                    chatUsers.sort(new Comparator<String>() {
+                        @Override
+                        public int compare(String o1, String o2) {
+                            return o1.compareTo(o2);
+                        }
+                    });
+                    System.out.println("is present >>>>" + chatUsers);
+                    System.out.println("is present >>>>" + addingUsers);
+                    isPresent = addingUsers.equals(chatUsers);
+                    if(isPresent) break;
+                }
+                return isPresent;
+            }
+        });
+
     }
 
     public static void main(String[] args) {
@@ -296,8 +404,8 @@ public class ChatFrame extends JFrame{
         panel.add(Box.createVerticalGlue()); // Aggiunge un altro spaziatore verticale per centrare verticalmente
 
         Color marcello = new Color(205, 146, 255);
-        Color down = new Color(255, 255, 255);
-        panel.setBackground(down);
+        Color bianco = new Color(255, 255, 255);
+        panel.setBackground(bianco);
         panel.setPreferredSize(new Dimension(298, 65));
         panel.setBorder(BorderFactory.createLineBorder(marcello, 1));
 
@@ -305,13 +413,38 @@ public class ChatFrame extends JFrame{
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // Elimina tutti i componenti dal pannello
+                // Ripristina il colore del pannello precedente (se ce n'è uno)
+                if (currentSelectedPanel != null) {
+                    currentSelectedPanel.setBackground(bianco);
+
+                    // Cerca la JLabel all'interno del pannello e imposta il colore del testo
+                    for (Component component : currentSelectedPanel.getComponents()) {
+                        if (component instanceof JLabel) {
+                            ((JLabel) component).setForeground(Color.black);
+                            break; // Trovata la JLabel, esci dal loop
+                        }
+                    }
+                }
+
+                // Imposta il colore del pannello corrente
+                Color sender = new Color(164,54,242);
+                panel.setBackground(sender);
+
+                // Cerca la JLabel all'interno del pannello e imposta il colore del testo
+                for (Component component : panel.getComponents()) {
+                    if (component instanceof JLabel) {
+                        ((JLabel) component).setForeground(Color.white);
+                        break; // Trovata la JLabel, esci dal loop
+                    }
+                }
+
+                // Aggiorna il pannello corrente selezionato
+                currentSelectedPanel = panel;
+
                 contenitoreMessaggi.removeAll();
 
-// Aggiorna il layout del pannello
                 contenitoreMessaggi.revalidate();
 
-// Ridisegna il pannello
                 contenitoreMessaggi.repaint();
                 if (c != null) {
                     ChatPanel thispanel = (ChatPanel) e.getSource();
@@ -406,48 +539,61 @@ public class ChatFrame extends JFrame{
         messagePanel.setMaximumSize(new Dimension(400, 65));
         messagePanel.setMinimumSize(new Dimension(400, 65));
 
+        Color sender = new Color(164, 54, 242);
+        Color senderBG = new Color(225, 225, 234);
 
         int spazioTraPannelli = 5;
 
-// Aggiungi uno spazio tra i pannelli dei messaggi impostando il colore di sfondo del margine
-        messagePanel.setBorder(BorderFactory.createCompoundBorder(
-
-                BorderFactory.createMatteBorder(0, 0, spazioTraPannelli, 0, Color.WHITE),
-                BorderFactory.createLineBorder(marcello, 1)
-        ));
-
-        // Aggiungi un componente di testo al pannello dei messaggi
+        // Aggiungi un componente di testo per il contenuto del messaggio
         JTextArea messageText = new JTextArea(messaggio.getContent());
         messageText.setWrapStyleWord(true);
         messageText.setLineWrap(true);
         messageText.setEditable(false);
 
-        // Allinea a sinistra se il mittente è diverso dall'utente corrente, altrimenti allinea a destra
+        // Aggiungi uno spazio tra i pannelli dei messaggi impostando il colore di sfondo del margine
         if (messaggio.getSender().equals(username)) {
+            messagePanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, spazioTraPannelli, 0, Color.white),
+                    BorderFactory.createLineBorder(sender, 3)
+            ));
+            messagePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             messageText.setAlignmentX(Component.LEFT_ALIGNMENT);
+            JPanel timestampPanel = new JPanel();
+            timestampPanel.setLayout(new BoxLayout(timestampPanel, BoxLayout.X_AXIS));
+            timestampPanel.add(Box.createHorizontalStrut(5)); // Spazio a sinistra
+            JLabel timestampLabel = new JLabel(messaggio.getSender() + ":");
+            timestampLabel.setFont(new Font("Inter Semi Bold", Font.BOLD, 13));
+            timestampPanel.setBackground(senderBG);
+            timestampLabel.setForeground(sender);
+            timestampPanel.add(timestampLabel);
+            messagePanel.add(timestampPanel, BorderLayout.PAGE_START);
         } else {
+            messagePanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, spazioTraPannelli, 0, Color.white),
+                    BorderFactory.createLineBorder(Color.black, 3)
+            ));
+            JPanel timestampPanel = new JPanel();
+            timestampPanel.setLayout(new BoxLayout(timestampPanel, BoxLayout.X_AXIS));
+            timestampPanel.add(Box.createHorizontalStrut(5)); // Spazio a sinistra
+            JLabel timestampLabel = new JLabel(messaggio.getSender() + ":");
+            timestampLabel.setFont(new Font("Inter Semi Bold", Font.BOLD, 13));
+            timestampPanel.setBackground(senderBG);
+            timestampLabel.setForeground(Color.black);
+            timestampPanel.add(timestampLabel);
+            messagePanel.add(timestampPanel, BorderLayout.PAGE_START);
+            messagePanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
             messageText.setAlignmentX(Component.RIGHT_ALIGNMENT);
         }
 
-        // Aggiungi il componente di testo al pannello dei messaggi
+        // Aggiungi il componente di testo al pannello dei messaggi nella regione centrale
         messagePanel.add(messageText, BorderLayout.CENTER);
 
-        // Allinea a sinistra se il mittente è diverso dall'utente corrente, altrimenti allinea a destra
-        if (messaggio.getSender().equals(username)) {
-            messagePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        } else {
-            messagePanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        }
+        // nome contatto se gruppo
 
-        // Aggiungi il componente di testo al pannello dei messaggi
-        messagePanel.add(messageText, BorderLayout.CENTER);
-
+        Font customFont = new Font("Inter Semi Bold", Font.BOLD, 16);
+        messageText.setFont(customFont);
 
         return messagePanel;
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
 

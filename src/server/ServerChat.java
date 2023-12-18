@@ -82,7 +82,7 @@ public class ServerChat {
                 for(String user : c.getUsers()){
                     if(!user.equals(request.getUser().getUsername())){
                         ObjectOutputStream client = userSocketMap.get(user);
-                        System.out.println(client + ":" + user + "<<<<<<<<<<<<<<<<<< molto importante");
+
                         if(client != null){
                             try {
                                 Object[] response = new Object[2];
@@ -96,6 +96,9 @@ public class ServerChat {
                         }
                     }
                 }
+
+                System.out.println(c);
+                System.out.println(request.getChatId());
                 c.getMessages().add(request.getMessage());
                 System.out.println(handler.replaceChat(request.getChatId(), c));
             }
