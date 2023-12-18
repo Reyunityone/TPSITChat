@@ -138,6 +138,10 @@ public class ChatFrame extends JFrame{
                         boolean isPresent = isPresent(currentChats, users);
                         if(!isPresent){
                             Chat chat = new Chat(currentChats.size(), users, new ArrayList<Message>(), false);
+                            chat.getMessages().add(new Message(username + " ha creato la chat.", username));
+                            for(String s: chat.getUsers()){
+                                if(!s.equalsIgnoreCase(username)) chat.getMessages().add(new Message(s + " ora partecipa alla chat.", s));
+                            }
                             ChatRequest request = new ChatRequest(ChatRequest.WRITE_CHATS, chat);
                             out.writeObject(request);
                             out.flush();
@@ -325,6 +329,10 @@ public class ChatFrame extends JFrame{
                         boolean presente = this.isPresent(currentChats, confronto);
                         if(!presente){
                             Chat chat = new Chat(currentChats.size(), confronto, new ArrayList<Message>(), false);
+                            chat.getMessages().add(new Message(username + " ha creato la chat.", username));
+                            for(String s: chat.getUsers()){
+                                if(!s.equalsIgnoreCase(username)) chat.getMessages().add(new Message(s + " ora partecipa alla chat.", s));
+                            }
                             ChatRequest request = new ChatRequest(ChatRequest.WRITE_CHATS, chat);
                             out.writeObject(request);
                             out.flush();
