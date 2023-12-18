@@ -12,9 +12,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
 public class ChatFrame extends JFrame{
@@ -44,6 +42,8 @@ public class ChatFrame extends JFrame{
 
     private ChatPanel currentChat = null;
     public ChatFrame(String username) {
+        gianfranco.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        gianpiero.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.username = username;
         ArrayList<Chat> chats = new ArrayList<Chat>();
         try{
@@ -251,7 +251,7 @@ public class ChatFrame extends JFrame{
                         }
                         for (Message m : messaggi) {
                             // Rinomina la variabile locale del pannello
-                            JPanel messagePanel = createMessagePanel(m);
+                            JPanel messagePanel = createMessagePanel(m, messaggi.size());
                             contenitoreMessaggi.add(messagePanel);
 
                             int spazioTraPannelli = 5;
@@ -411,8 +411,31 @@ public class ChatFrame extends JFrame{
     }
 
     private ChatPanel createPanel(Chat c) {
+
         ChatPanel panel = new ChatPanel(c.getId());
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Utilizza BoxLayout con orientamento verticale
+        int num = 0;
+        try{
+           inSemaforo.acquire();
+       ChatRequest request = new ChatRequest(ChatRequest.LOAD_CHATS, new User(username, null));
+           out.writeObject(request);
+           out.flush();
+           ArrayList<Chat> a = (ArrayList<Chat>) in.readObject();
+           num = a.size();
+           inSemaforo.release();
+        }catch (Exception e){}
+
+        int totale = 0;
+        int finale = (num * 65);
+        if (finale < 625){
+            totale = 625;
+        }else{
+            totale = finale;
+        }
+
+        contenitoreContatti.setPreferredSize(new Dimension(-1,totale));
+        contenitoreContatti.setMinimumSize(new Dimension(-1,totale));
+        contenitoreContatti.setMaximumSize(new Dimension(-1,totale));
 
         JLabel label = getjLabel(c);
         panel.add(Box.createVerticalGlue()); // Aggiunge uno spaziatore verticale per centrare verticalmente
@@ -487,7 +510,7 @@ public class ChatFrame extends JFrame{
                     }
                     for (Message m : messaggi) {
                         // Rinomina la variabile locale del pannello
-                        JPanel messagePanel = createMessagePanel(m);
+                        JPanel messagePanel = createMessagePanel(m, messaggi.size());
                         System.out.println(messagePanel);
                         contenitoreMessaggi.add(messagePanel);
 
@@ -546,14 +569,25 @@ public class ChatFrame extends JFrame{
         return label;
     }
 
-    private JPanel createMessagePanel(Message messaggio) {
+    private JPanel createMessagePanel(Message messaggio, int num) {
+
         JPanel messagePanel = new JPanel();
         messagePanel.setLayout(new BorderLayout());
 
+        int totale = 0;
+        int finale = (num * 81);
+        if (finale < 570){
+            totale = 570;
+        }else{
+            totale = finale;
+        }
+        contenitoreMessaggi.setPreferredSize(new Dimension(-1,totale));
+        contenitoreMessaggi.setMinimumSize(new Dimension(-1,totale));
+        contenitoreMessaggi.setMaximumSize(new Dimension(-1,totale));
         Color marcello = new Color(205, 146, 255);
-        messagePanel.setPreferredSize(new Dimension(400, 65));
-        messagePanel.setMaximumSize(new Dimension(400, 65));
-        messagePanel.setMinimumSize(new Dimension(400, 65));
+        messagePanel.setPreferredSize(new Dimension(400, 80));
+        messagePanel.setMaximumSize(new Dimension(400, 80));
+        messagePanel.setMinimumSize(new Dimension(400, 80));
 
         Color sender = new Color(164, 54, 242);
         Color senderBG = new Color(225, 225, 234);
@@ -574,6 +608,8 @@ public class ChatFrame extends JFrame{
             ));
             messagePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
             messageText.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+
             JPanel timestampPanel = new JPanel();
             timestampPanel.setLayout(new BoxLayout(timestampPanel, BoxLayout.X_AXIS));
             timestampPanel.add(Box.createHorizontalStrut(5)); // Spazio a sinistra
@@ -582,12 +618,30 @@ public class ChatFrame extends JFrame{
             timestampPanel.setBackground(senderBG);
             timestampLabel.setForeground(sender);
             timestampPanel.add(timestampLabel);
+
+            timestampPanel.add(Box.createHorizontalGlue());
+
+            String stringa = "";
+            GregorianCalendar calendario = messaggio.getTime();
+            int ora = calendario.get(Calendar.HOUR_OF_DAY);
+            int minuti = calendario.get(Calendar.MINUTE);
+            stringa = ora + ":" + minuti + "  ";
+            JLabel ciaoLabel = new JLabel(stringa);
+            ciaoLabel.setFont(new Font("Inter Semi Bold", Font.BOLD, 13));
+            timestampPanel.add(ciaoLabel);
+
             messagePanel.add(timestampPanel, BorderLayout.PAGE_START);
+
         } else {
             messagePanel.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(0, 0, spazioTraPannelli, 0, Color.white),
                     BorderFactory.createLineBorder(Color.black, 3)
             ));
+
+            messagePanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+            messageText.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+
             JPanel timestampPanel = new JPanel();
             timestampPanel.setLayout(new BoxLayout(timestampPanel, BoxLayout.X_AXIS));
             timestampPanel.add(Box.createHorizontalStrut(5)); // Spazio a sinistra
@@ -596,9 +650,21 @@ public class ChatFrame extends JFrame{
             timestampPanel.setBackground(senderBG);
             timestampLabel.setForeground(Color.black);
             timestampPanel.add(timestampLabel);
+
+
+            timestampPanel.add(Box.createHorizontalGlue());
+
+            String stringa = "";
+            GregorianCalendar calendario = messaggio.getTime();
+            int ora = calendario.get(Calendar.HOUR_OF_DAY);
+            int minuti = calendario.get(Calendar.MINUTE);
+            stringa = ora + ":" + minuti + "  ";
+            JLabel ciaoLabel = new JLabel(stringa);
+            ciaoLabel.setFont(new Font("Inter Semi Bold", Font.BOLD, 13));
+            timestampPanel.add(ciaoLabel);
+
             messagePanel.add(timestampPanel, BorderLayout.PAGE_START);
-            messagePanel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-            messageText.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
         }
 
         // Aggiungi il componente di testo al pannello dei messaggi nella regione centrale
