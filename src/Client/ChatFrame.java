@@ -30,6 +30,7 @@ public class ChatFrame extends JFrame{
     private JScrollPane gianfranco;
     private JPanel contenitoreMessaggi;
     private JScrollPane gianpiero;
+    private JScrollPane messageScroll;
 
     private final Semaphore inSemaforo = new Semaphore(1);
 
@@ -90,6 +91,18 @@ public class ChatFrame extends JFrame{
         for(Chat c : chats){
             contenitoreContatti.add(createPanel(c));
         }
+        messageArea.setLineWrap(true);  // Per andare a capo alla fine della riga
+        messageArea.setWrapStyleWord(true);  // Per andare a capo solo tra le parole
+
+        // Creazione di uno JScrollPane e aggiunta della JTextArea
+
+        messageScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        // Impostazione della dimensione massima desiderata per evitare l'allungamento
+        messageArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        // Aggiunta del JScrollPane al contenuto del frame
+
         //###########################
         frame.setVisible(true);
         logout.addActionListener(new ActionListener() {
@@ -214,25 +227,34 @@ public class ChatFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 String messageContent = messageArea.getText();
-                if(messageContent.isBlank()){
+                if(!messageContent.isBlank()){
+                    messageArea.setText("");
+                    Message message = new Message(messageContent, username);
+                    User u = new User(username, null);
+                    ChatRequest request = new ChatRequest(ChatRequest.WRITE_MESSAGE, u, message, currentChat.getChatId());
+                    try {
+                        out.writeObject(request);
+                        System.out.println(messageContent);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+
+                }else {
                     JOptionPane.showMessageDialog(null, "Non puoi inviare un messaggio vuoto");
                 }
-                messageArea.setText("");
-                Message message = new Message(messageContent, username);
-                User u = new User(username, null);
-                ChatRequest request = new ChatRequest(ChatRequest.WRITE_MESSAGE, u, message, currentChat.getChatId());
-                try {
-                    out.writeObject(request);
-                    System.out.println(messageContent);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
+                try{
+                    Thread.sleep(1000);
+                }catch (Exception marco){}
+                Point currentViewPosition = gianpiero.getViewport().getViewPosition();
+                Point newViewPosition = new Point(currentViewPosition.x, currentViewPosition.y + 100000);
+                gianpiero.getViewport().setViewPosition(newViewPosition);
             }
+
         });
         Thread reload = new Thread(() ->{
             try{
                 while(true){
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                     if(currentChat != null){
                         contenitoreMessaggi.removeAll();
 
@@ -567,6 +589,12 @@ public class ChatFrame extends JFrame{
                 }else {
                     contenitoreMessaggi.setPreferredSize(new Dimension(-1, altezza + 5));
                 }
+                try{
+                    Thread.sleep(1000);
+                }catch (Exception marco){}
+                Point currentViewPosition = gianpiero.getViewport().getViewPosition();
+                Point newViewPosition = new Point(currentViewPosition.x, currentViewPosition.y + 100000);
+                gianpiero.getViewport().setViewPosition(newViewPosition);
             }
         });
         return panel;
@@ -743,6 +771,7 @@ public class ChatFrame extends JFrame{
         messagePanel.setPreferredSize(new Dimension(400, height + 50));
         messagePanel.setMaximumSize(new Dimension(400, height + 50));
         messagePanel.setMinimumSize(new Dimension(400, height + 50));
+
 
         return messagePanel;
     }
