@@ -154,7 +154,7 @@ public class DBHandler {
               time.setTextContent("" + message.getTime().get(GregorianCalendar.DATE)
               + "/" + message.getTime().get(GregorianCalendar.MONTH)
               + "/" + message.getTime().get(GregorianCalendar.YEAR)
-              + "/" + message.getTime().get(GregorianCalendar.HOUR)
+              + "/" + message.getTime().get(GregorianCalendar.HOUR_OF_DAY)
               + "/" + message.getTime().get(GregorianCalendar.MINUTE));
               sender.setTextContent(message.getSender());
               System.out.println(message.getContent());
@@ -167,7 +167,7 @@ public class DBHandler {
               messageTime.setTextContent("" + message.getTime().get(GregorianCalendar.DATE)
               + "/" + message.getTime().get(GregorianCalendar.MONTH)
               + "/" + message.getTime().get(GregorianCalendar.YEAR)
-              + "/" + message.getTime().get(GregorianCalendar.HOUR)
+              + "/" + message.getTime().get(GregorianCalendar.HOUR_OF_DAY)
               + "/" + message.getTime().get(GregorianCalendar.MINUTE));
               sender.setTextContent(message.getSender());
               Node newMessage = document.createElement("message");

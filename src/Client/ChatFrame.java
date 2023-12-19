@@ -214,6 +214,9 @@ public class ChatFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 String messageContent = messageArea.getText();
+                if(messageContent.isBlank()){
+                    JOptionPane.showMessageDialog(null, "Non puoi inviare un messaggio vuoto");
+                }
                 messageArea.setText("");
                 Message message = new Message(messageContent, username);
                 User u = new User(username, null);
@@ -280,6 +283,17 @@ public class ChatFrame extends JFrame{
                             // Imposta la nuova posizione della vista
                             gianpiero.getViewport().setViewPosition(newViewPosition1);
                             }
+                        Component[] components = contenitoreMessaggi.getComponents();
+                        int altezza = 0;
+                        for (int i = 0; i < components.length; i++) {
+                            JPanel panel = (JPanel) components[i];
+                            altezza = altezza + panel.getPreferredSize().height;
+                        }
+                        if(altezza < 570){
+                            contenitoreMessaggi.setPreferredSize(new Dimension(-1, 570));
+                        }else {
+                            contenitoreMessaggi.setPreferredSize(new Dimension(-1, altezza + 5));
+                        }
                     }
                 }
             }
@@ -452,6 +466,7 @@ public class ChatFrame extends JFrame{
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+
                 // Ripristina il colore del pannello precedente (se ce n'è uno)
                 if (currentSelectedPanel != null) {
                     currentSelectedPanel.setBackground(bianco);
@@ -541,6 +556,17 @@ public class ChatFrame extends JFrame{
                         gianpiero.getViewport().setViewPosition(newViewPosition1);
                     }
                 }
+                Component[] components = contenitoreMessaggi.getComponents();
+                int altezza = 0;
+                for (int i = 0; i < components.length; i++) {
+                    JPanel panel = (JPanel) components[i];
+                    altezza = altezza + panel.getPreferredSize().height;
+                }
+                if(altezza < 570){
+                    contenitoreMessaggi.setPreferredSize(new Dimension(-1, 570));
+                }else {
+                    contenitoreMessaggi.setPreferredSize(new Dimension(-1, altezza + 5));
+                }
             }
         });
         return panel;
@@ -574,16 +600,16 @@ public class ChatFrame extends JFrame{
         JPanel messagePanel = new JPanel();
         messagePanel.setLayout(new BorderLayout());
 
-        int totale = 0;
-        int finale = (num * 81);
-        if (finale < 570){
-            totale = 570;
-        }else{
-            totale = finale;
-        }
-        contenitoreMessaggi.setPreferredSize(new Dimension(-1,totale));
-        contenitoreMessaggi.setMinimumSize(new Dimension(-1,totale));
-        contenitoreMessaggi.setMaximumSize(new Dimension(-1,totale));
+//        int totale = 0;
+//        int finale = (num * 81);
+//        if (finale < 570){
+//            totale = 570;
+//        }else{
+//            totale = finale;
+//        }
+//        contenitoreMessaggi.setPreferredSize(new Dimension(-1,totale));
+//        contenitoreMessaggi.setMinimumSize(new Dimension(-1,totale));
+//        contenitoreMessaggi.setMaximumSize(new Dimension(-1,totale));
         Color marcello = new Color(205, 146, 255);
         messagePanel.setPreferredSize(new Dimension(400, 80));
         messagePanel.setMaximumSize(new Dimension(400, 80));
@@ -594,11 +620,53 @@ public class ChatFrame extends JFrame{
 
         int spazioTraPannelli = 5;
 
+        StringTokenizer st = new StringTokenizer(messaggio.getContent());
+        int counter = 0;
+        int righe = 1;
+        int numParole = 0;
+        int numTokens = st.countTokens();
+        String messaggioFinale = "";
+        while (st.hasMoreTokens()){
+            String lunghezza = st.nextToken();
+            counter = counter + lunghezza.length();
+            if(counter >= 36 && numTokens == 1){
+                messaggioFinale = messaggioFinale + lunghezza + "\n";
+                righe = lunghezza.length() /36;
+            }else if(counter >= 36){
+                messaggioFinale = messaggioFinale + "\n" + lunghezza;
+                righe++;
+                counter = 0;
+            }else if(!(numParole == 0)) {
+                messaggioFinale = messaggioFinale + " " + lunghezza;
+                counter++;
+            }else {
+                messaggioFinale = messaggioFinale + lunghezza;
+            }
+            if(lunghezza.length() >= 36 && numParole != 0){
+                righe += lunghezza.length() /36;
+            }
+            numParole++;
+        }
+
+        int height = righe * 21;
+
+
         // Aggiungi un componente di testo per il contenuto del messaggio
-        JTextArea messageText = new JTextArea(messaggio.getContent());
+        JTextArea messageText = new JTextArea(messaggioFinale);
+        Font customFont = new Font("Inter Semi Bold", Font.BOLD, 16);
+        messageText.setFont(customFont);
         messageText.setWrapStyleWord(true);
         messageText.setLineWrap(true);
         messageText.setEditable(false);
+
+
+
+        int width = 400;
+
+        messageText.setMinimumSize(new Dimension(width,height));
+        messageText.setPreferredSize(new Dimension(width,height));
+        messageText.setMaximumSize(new Dimension(width,height));
+
 
         // Aggiungi uno spazio tra i pannelli dei messaggi impostando il colore di sfondo del margine
         if (messaggio.getSender().equals(username)) {
@@ -623,9 +691,10 @@ public class ChatFrame extends JFrame{
 
             String stringa = "";
             GregorianCalendar calendario = messaggio.getTime();
-            int ora = calendario.get(Calendar.HOUR_OF_DAY);
-            int minuti = calendario.get(Calendar.MINUTE);
-            stringa = ora + ":" + minuti + "  ";
+            int ora = calendario.get(GregorianCalendar.HOUR_OF_DAY);
+            int minuti = calendario.get(GregorianCalendar.MINUTE);
+            stringa = (ora < 10) ? "0" + ora + ":" : ora + ":";
+            stringa = (minuti < 10) ? stringa + "0" + minuti + " " : stringa + minuti + " ";
             JLabel ciaoLabel = new JLabel(stringa);
             ciaoLabel.setFont(new Font("Inter Semi Bold", Font.BOLD, 13));
             timestampPanel.add(ciaoLabel);
@@ -656,9 +725,10 @@ public class ChatFrame extends JFrame{
 
             String stringa = "";
             GregorianCalendar calendario = messaggio.getTime();
-            int ora = calendario.get(Calendar.HOUR_OF_DAY);
-            int minuti = calendario.get(Calendar.MINUTE);
-            stringa = ora + ":" + minuti + "  ";
+            int ora = calendario.get(GregorianCalendar.HOUR_OF_DAY);
+            int minuti = calendario.get(GregorianCalendar.MINUTE);
+            stringa = (ora < 10) ? "0" + ora + ":" : ora + ":";
+            stringa = (minuti < 10) ? stringa + "0" + minuti + " " : stringa + minuti + " ";
             JLabel ciaoLabel = new JLabel(stringa);
             ciaoLabel.setFont(new Font("Inter Semi Bold", Font.BOLD, 13));
             timestampPanel.add(ciaoLabel);
@@ -670,10 +740,9 @@ public class ChatFrame extends JFrame{
         // Aggiungi il componente di testo al pannello dei messaggi nella regione centrale
         messagePanel.add(messageText, BorderLayout.CENTER);
 
-        // nome contatto se gruppo
-
-        Font customFont = new Font("Inter Semi Bold", Font.BOLD, 16);
-        messageText.setFont(customFont);
+        messagePanel.setPreferredSize(new Dimension(400, height + 50));
+        messagePanel.setMaximumSize(new Dimension(400, height + 50));
+        messagePanel.setMinimumSize(new Dimension(400, height + 50));
 
         return messagePanel;
     }
