@@ -125,14 +125,11 @@ public class ChatFrame extends JFrame {
                     String addedUser = "";
                     addedUser = newChatText.getText();
                     newChatText.setText("");
-                    CredentialsHandler gestioneCred = new CredentialsHandler();
-                    prova = gestioneCred.readCredentials();
-                    boolean neg = false;
-                    for (int i = 0; i < prova.size(); i++) {
-                        if (prova.get(i).getUsername().equals(addedUser)) {
-                            neg = true;
-                        }
-                    }
+                    inSemaforo.acquire();
+                    ChatRequest request2 = new ChatRequest(ChatRequest.CHECK_USERS_NOPASSWORD, new User(addedUser,null));
+                    out.writeObject(request2);
+                    boolean neg = (boolean) in.readObject();
+                    inSemaforo.release();
                     if (!neg) {
                         JOptionPane.showMessageDialog(null, "Utente non trovato");
                     } else if (!addedUser.equals(username)) {
@@ -340,15 +337,19 @@ public class ChatFrame extends JFrame {
                         confronto.add(token);
                     }
 
-                    CredentialsHandler gestioneCred = new CredentialsHandler();
-                    prova = gestioneCred.readCredentials();
+
 
                     for (String s: confronto) {
                         boolean found = false;
-                        for (User u: prova) {
-                            if (u.getUsername().equalsIgnoreCase(s)) {
-                                found = true;
-                            }
+                        try{
+                            inSemaforo.acquire();
+                            ChatRequest request = new ChatRequest(ChatRequest.CHECK_USERS_NOPASSWORD, new User(s, null));
+                            out.writeObject(request);
+                            found = (boolean) in.readObject();
+                            inSemaforo.release();
+                        }
+                        catch(Exception ex){
+                            System.err.println(ex);
                         }
                         if (!found) {
                             JOptionPane.showMessageDialog(null, "Utente non trovato: " + s);

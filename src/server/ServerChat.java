@@ -116,4 +116,13 @@ public class ServerChat {
         return credentials.writeCredentials(u);
     }
 
+    public synchronized boolean checkUserNoPassword(User u) throws Exception{
+        ArrayList<User> userList = credentials.readCredentials();
+        for(User user : userList){
+            if(user.getUsername().equals(u.getUsername())) return true;
+        }
+
+        return false;
+    }
+
 }

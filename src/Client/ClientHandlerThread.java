@@ -51,6 +51,9 @@ public class ClientHandlerThread extends Thread{
                     case ChatRequest.WRITE_USER:
                         writeUser(request,output);
                         break;
+                    case ChatRequest.CHECK_USERS_NOPASSWORD:
+                        checkUserNoPassword(request, output);
+                        break;
                 }
             }
 
@@ -63,6 +66,17 @@ public class ClientHandlerThread extends Thread{
             } catch (Exception e) {
                 System.err.println(e);
             }
+        }
+    }
+
+    private void checkUserNoPassword(ChatRequest request, ObjectOutputStream out) {
+        try{
+            User user = request.getUser();
+            boolean found = server.checkUserNoPassword(user);
+            out.writeObject(found);
+        }
+        catch(Exception ex){
+            System.err.println(ex);
         }
     }
 
