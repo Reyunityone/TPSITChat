@@ -48,6 +48,9 @@ public class ClientHandlerThread extends Thread{
                     case ChatRequest.CHECK_USER:
                         checkUser(request, output);
                         break;
+                    case ChatRequest.WRITE_USER:
+                        writeUser(request,output);
+                        break;
                 }
             }
 
@@ -119,6 +122,14 @@ public class ClientHandlerThread extends Thread{
         }
         catch(Exception ex){
             System.err.println(ex);
+        }
+    }
+
+    private void writeUser(ChatRequest request, ObjectOutputStream output){
+        try {
+            output.writeObject(server.writeUser(request.getUser()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

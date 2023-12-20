@@ -1,5 +1,6 @@
 package Client;
 
+import server.ChatRequest;
 import server.CredentialsHandler;
 import server.User;
 
@@ -7,8 +8,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 public class SignUp extends JFrame{
+    private Socket socket;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
     private JPanel panel1;
     private JButton REGISTRATIButton;
     private JTextField textField1;
@@ -34,6 +41,20 @@ public class SignUp extends JFrame{
         new SignUp();
     }
 public SignUp() {
+    try{
+        socket = new Socket("localhost", 5000);
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
+        System.out.println(in.readObject());
+        out.writeObject(new ChatRequest(ChatRequest.MANAGE_USERS, (User)null));
+        System.out.println(in.readObject());
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
+
+    }
+    catch(Exception ex){
+        System.err.println(ex);
+    }
     frame = new JFrame("Sign Up");
     frame.setMinimumSize(new Dimension(660,460));
     frame.setLocationRelativeTo(null);
@@ -69,8 +90,11 @@ public SignUp() {
                     errori.setText("Inserisci un username di almeno 5 caratteri!!!");
                 } else{
                     User user = new User(username, password);
-                    CredentialsHandler gestioneCred = new CredentialsHandler();
-                    if(!gestioneCred.writeCredentials(user)){
+                    ChatRequest request = new ChatRequest(ChatRequest.WRITE_USER, user);
+                    out.writeObject(request);
+                    out.flush();
+                    boolean success = (boolean)in.readObject();
+                    if(!success){
                         errori.setForeground(Color.red);
                         errori.setVisible(true);
                         errori.setText("Utente già registrato!!!");

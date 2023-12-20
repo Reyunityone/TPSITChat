@@ -130,4 +130,8 @@ public class ServerChat {
         return false;
     }
 
+    public synchronized boolean writeUser(User u) throws Exception{
+        return credentials.writeCredentials(u);
+    }
+
 }
