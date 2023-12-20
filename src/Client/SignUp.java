@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -110,6 +111,11 @@ public SignUp() {
     RITORNAALLOGINButton.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             login marco = new login();
             frame.setVisible(false);
         }

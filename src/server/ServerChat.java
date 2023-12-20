@@ -86,24 +86,6 @@ public class ServerChat {
         ArrayList<Chat> chats = handler.readChats();
         for(Chat c: chats){
             if(c.getId() == request.getChatId()){
-                for(String user : c.getUsers()){
-                    if(!user.equals(request.getUser().getUsername())){
-                        ObjectOutputStream client = userSocketMap.get(user);
-
-                        if(client != null){
-                            try {
-                                Object[] response = new Object[2];
-                                response[0] = request.getMessage();
-                                response[1] = request.getChatId();
-                                //client.writeObject(response);
-                                //client.flush();
-                            }catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-
                 System.out.println(c);
                 System.out.println(request.getChatId());
                 c.getMessages().add(request.getMessage());
