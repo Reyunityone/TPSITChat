@@ -11,9 +11,9 @@ import server.ServerChat;
 import server.User;
 
 public class ClientHandlerThread extends Thread{
-    private Socket clientSocket;
-    private ServerChat server;
-    private String user;
+    private final Socket clientSocket;
+    private final ServerChat server;
+    private final String user;
 
     public ClientHandlerThread(Socket clientSocket ,ServerChat server, String user){
         this.clientSocket = clientSocket;
@@ -44,6 +44,9 @@ public class ClientHandlerThread extends Thread{
                         break;
                     case ChatRequest.GET_SIZE:
                         getChatsLength(output);
+                        break;
+                    case ChatRequest.CHECK_USER:
+                        checkUser(request, output);
                         break;
                 }
             }
@@ -102,6 +105,17 @@ public class ClientHandlerThread extends Thread{
     private void getChatsLength(ObjectOutputStream out){
         try{
             out.writeObject(server.getChatsLength());
+        }
+        catch(Exception ex){
+            System.err.println(ex);
+        }
+    }
+
+    private void checkUser(ChatRequest request, ObjectOutputStream out){
+        try{
+            User user = request.getUser();
+            boolean found = server.checkUser(user);
+            out.writeObject(found);
         }
         catch(Exception ex){
             System.err.println(ex);

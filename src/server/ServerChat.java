@@ -17,6 +17,7 @@ public class ServerChat {
     private List<ClientHandlerThread> clients = new ArrayList<>();
     private boolean running = true;
     private DBHandler handler = new DBHandler();
+    private CredentialsHandler credentials = new CredentialsHandler();
     private Map<String, ObjectOutputStream> userSocketMap = new HashMap<>();
     public void startServer() {
         try {
@@ -31,7 +32,7 @@ public class ServerChat {
                     out.writeObject("Trying to connect...");
                     ChatRequest request = (ChatRequest) in.readObject();
                     if(request.getCode() == ChatRequest.AUTH){
-                        if(!userSocketMap.containsKey(request.getUser().getUsername())){
+                        if(!userSocketMap.containsKey(request.getUser().getUsername())) {
                             userSocketMap.put(request.getUser().getUsername(), out);
                             out.writeObject("Authentication succesful\n" + userSocketMap);
                             ClientHandlerThread clientThread = new ClientHandlerThread(clientSocket, this, request.getUser().getUsername());
@@ -41,6 +42,12 @@ public class ServerChat {
                         else{
                             out.writeObject("Authentication error");
                         }
+                    }
+                    else if(request.getCode() == ChatRequest.MANAGE_USERS){
+                        out.writeObject("OK!");
+                        ClientHandlerThread clientThread = new ClientHandlerThread(clientSocket, this, null);
+                        clients.add(clientThread);
+                        clientThread.start();
                     }
                     
                 } catch (Exception e) {
@@ -112,6 +119,15 @@ public class ServerChat {
 
     public synchronized int getChatsLength() throws Exception {
         return handler.readChats().size();
+    }
+
+    public synchronized boolean checkUser(User u) throws Exception{
+        ArrayList<User> userList = credentials.readCredentials();
+        for(User user : userList){
+            if(user.getUsername().equals(u.getUsername()) && user.getPassword().equals(u.getPassword())) return true;
+        }
+
+        return false;
     }
 
 }

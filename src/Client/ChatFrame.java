@@ -40,7 +40,7 @@ public class ChatFrame extends JFrame{
     private ObjectInputStream in;
     Socket client;
     private ArrayList<Message> messaggi = new ArrayList<>();
-
+    private ArrayList<Message> currentMessages = new ArrayList<Message>();
     private ChatPanel currentChat = null;
     public ChatFrame(String username) {
         gianfranco.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -256,7 +256,6 @@ public class ChatFrame extends JFrame{
                 while(true){
                     Thread.sleep(1000);
                     if(currentChat != null){
-                        contenitoreMessaggi.removeAll();
 
                         ChatRequest request = new ChatRequest(ChatRequest.LOAD_MESSAGES, currentChat.getChatId());
                         messaggi = new ArrayList<>();
@@ -274,48 +273,53 @@ public class ChatFrame extends JFrame{
                         for (Message prova : messaggi) {
                             System.out.println(prova.getContent());
                         }
-                        for (Message m : messaggi) {
-                            // Rinomina la variabile locale del pannello
-                            JPanel messagePanel = createMessagePanel(m, messaggi.size());
-                            contenitoreMessaggi.add(messagePanel);
+                        if(currentMessages.size() != messaggi.size()){
 
-                            int spazioTraPannelli = 5;
-                            contenitoreMessaggi.setBorder(BorderFactory.createEmptyBorder(spazioTraPannelli, spazioTraPannelli, spazioTraPannelli, spazioTraPannelli));
-                            // Aggiungi il pannello dei messaggi al contenitore
-                            contenitoreMessaggi.add(messagePanel);
+                            contenitoreMessaggi.removeAll();for (Message m : messaggi) {
+                                // Rinomina la variabile locale del pannello
+                                JPanel messagePanel = createMessagePanel(m, messaggi.size());
+                                contenitoreMessaggi.add(messagePanel);
 
-                            // Riorganizza il layout del contenitoreMessaggi
-                            contenitoreMessaggi.revalidate();
-                            contenitoreMessaggi.repaint();
-                            // Ottieni la posizione corrente
-                            Point currentViewPosition = gianpiero.getViewport().getViewPosition();
+                                int spazioTraPannelli = 5;
+                                contenitoreMessaggi.setBorder(BorderFactory.createEmptyBorder(spazioTraPannelli, spazioTraPannelli, spazioTraPannelli, spazioTraPannelli));
+                                // Aggiungi il pannello dei messaggi al contenitore
+                                contenitoreMessaggi.add(messagePanel);
 
-                            // Sposta di un pixel orizzontalmente e verticalmente
-                            Point newViewPosition = new Point(currentViewPosition.x + 0, currentViewPosition.y + 1);
+                                // Riorganizza il layout del contenitoreMessaggi
+                                contenitoreMessaggi.revalidate();
+                                contenitoreMessaggi.repaint();
+                                // Ottieni la posizione corrente
+                                Point currentViewPosition = gianpiero.getViewport().getViewPosition();
 
-                            // Imposta la nuova posizione della vista
-                            gianpiero.getViewport().setViewPosition(newViewPosition);
+                                // Sposta di un pixel orizzontalmente e verticalmente
+                                Point newViewPosition = new Point(currentViewPosition.x + 0, currentViewPosition.y + 1);
 
-                            // Ottieni la posizione corrente
-                            Point currentViewPosition1 = gianpiero.getViewport().getViewPosition();
+                                // Imposta la nuova posizione della vista
+                                gianpiero.getViewport().setViewPosition(newViewPosition);
 
-                            // Sposta di un pixel orizzontalmente e verticalmente
-                            Point newViewPosition1 = new Point(currentViewPosition1.x + 0, currentViewPosition1.y - 1);
+                                // Ottieni la posizione corrente
+                                Point currentViewPosition1 = gianpiero.getViewport().getViewPosition();
 
-                            // Imposta la nuova posizione della vista
-                            gianpiero.getViewport().setViewPosition(newViewPosition1);
+                                // Sposta di un pixel orizzontalmente e verticalmente
+                                Point newViewPosition1 = new Point(currentViewPosition1.x + 0, currentViewPosition1.y - 1);
+
+                                // Imposta la nuova posizione della vista
+                                gianpiero.getViewport().setViewPosition(newViewPosition1);
                             }
-                        Component[] components = contenitoreMessaggi.getComponents();
-                        int altezza = 0;
-                        for (int i = 0; i < components.length; i++) {
-                            JPanel panel = (JPanel) components[i];
-                            altezza = altezza + panel.getPreferredSize().height;
+                            Component[] components = contenitoreMessaggi.getComponents();
+                            int altezza = 0;
+                            for (int i = 0; i < components.length; i++) {
+                                JPanel panel = (JPanel) components[i];
+                                altezza = altezza + panel.getPreferredSize().height;
+                            }
+                            if(altezza < 570){
+                                contenitoreMessaggi.setPreferredSize(new Dimension(-1, 570));
+                            }else {
+                                contenitoreMessaggi.setPreferredSize(new Dimension(-1, altezza + 5));
+                            }
                         }
-                        if(altezza < 570){
-                            contenitoreMessaggi.setPreferredSize(new Dimension(-1, 570));
-                        }else {
-                            contenitoreMessaggi.setPreferredSize(new Dimension(-1, altezza + 5));
-                        }
+                        currentMessages = messaggi;
+
                     }
                 }
             }
